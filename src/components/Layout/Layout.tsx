@@ -1,17 +1,15 @@
 import { Outlet } from 'react-router-dom';
 
-import Main from '../Main/Main';
+import { Main } from '../..';
 
 import './layout.css';
 
-const Layout = () => {
+export const Layout = () => {
   return (
-    <div className="container">
+    <div className="layout-container">
       <Main />
       <Outlet />
     </div>
   );
 };
-
-export default Layout;
 

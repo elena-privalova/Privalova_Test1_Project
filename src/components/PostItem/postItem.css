@@ -1,14 +1,14 @@
-.posts-container__post {
+.post__item {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  width: 48%;
+  width: 250px;
   height: 200px;
   padding: 5px;
   border: 2px solid cadetblue;
 }
 
-.post p {
+.post__item p {
   margin-left: 5px;
 }
 

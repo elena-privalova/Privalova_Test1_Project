@@ -1,24 +1,24 @@
 import { useEffect } from 'react';
 
-import Table from '../Table/Table';
-import useStore from '../../store';
+import { useStore, Table } from '../..';
 
-const Main = () => {
-  const { users, usersError, countsUsersPosts, getUsers } = useStore();
+export const Main = () => {
+  const users = useStore((state) => state.users);
+  const usersError = useStore((state) => state.usersError);
+  const countsUsersPosts = useStore((state) => state.countsUsersPosts);
+  const getUsers = useStore((state) => state.getUsers);
 
   useEffect(() => {
     getUsers();
   }, []);
 
+  if (usersError) {
+    alert(usersError);
+    return null;
+  }
+
   return (
-    <>
-      {usersError === ''
-        ? <Table users={users} countsPosts={countsUsersPosts} />
-        : alert(usersError)
-      }
-    </>
+    <Table users={users} countsPosts={countsUsersPosts} />
   );
 };
-
-export default Main;
 

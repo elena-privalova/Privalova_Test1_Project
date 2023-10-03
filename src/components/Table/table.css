@@ -1,4 +1,4 @@
-table {
+.layout-container__table {
   width: auto;
   height: auto;
   border: 1px solid grey;
@@ -6,7 +6,7 @@ table {
   text-align: center;
 }
 
-table td,th {
+.layout-container__table td,th {
   padding: 5px;
   border: 1px solid grey;
 }

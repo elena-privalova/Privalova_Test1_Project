@@ -1,9 +1,9 @@
 import { useRoutes } from 'react-router-dom';
 
-import Layout from './components/Layout/Layout';
-import PostsList from './components/PostsList/PostsList';
+import { Layout } from './components/Layout/Layout';
+import { PostsList } from './components/PostsList/PostsList';
 
-const App = () => {
+export const App = () => {
   return useRoutes([
     {
       path: '/',
@@ -17,6 +17,4 @@ const App = () => {
     }
   ]);
 };
-
-export default App;
 

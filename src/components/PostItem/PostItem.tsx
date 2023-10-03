@@ -1,17 +1,19 @@
-import { FC } from 'react';
+import { PostData } from '../../store/types';
 
 import './postItem.css';
 
-const PostItem: FC<PostItemProps> = ({ postItem }) => {
+type PostItemProps = { postItem: PostData };
+
+const PostItem = (props: PostItemProps) => {
   return (
-    <div className="posts-container__post post">
+    <div className="post__item">
       <div>
         <span>Title:</span>
-        <p>{postItem.title}</p>
+        <p>{props.postItem.title}</p>
       </div>
       <div>
         <span>Text:</span>
-        <p>{postItem.body}</p>
+        <p>{props.postItem.body}</p>
       </div>
     </div>
   );

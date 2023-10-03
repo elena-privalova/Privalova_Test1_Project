@@ -2,12 +2,15 @@ import { create } from 'zustand';
 import { AxiosError } from 'axios';
 
 import api from './adapter';
+import { StoreState } from './types';
 
-const useStore = create<StoreState>((set, get) => ({
+export const useStore = create<StoreState>((set, get) => ({
   users: [],
   usersError: '',
   countsUsersPosts: [],
   allPosts: [],
+  startUserNumber: 0,
+  currentUsers: [],
   userPosts: [],
   postsError: '',
   getUsers: async() => {
@@ -46,6 +49,17 @@ const useStore = create<StoreState>((set, get) => ({
       }
     }
   },
+  setStartUserNumber: (userNumber: number) => {
+    set({ startUserNumber: userNumber });
+  },
+  setCurrentUsers: (userNumber: number) => {
+    const usersArray = get().users.map((user, index) => {
+      if (index >= get().startUserNumber && index <= userNumber) {
+        return user.id;
+      }
+    });
+    set({ currentUsers: usersArray as number[] });
+  },
   getUserPosts: async(userId: number) => {
     try {
       const { data } = await api.get(`posts?userId=${userId}`);
@@ -58,6 +72,4 @@ const useStore = create<StoreState>((set, get) => ({
     }
   }
 }));
-
-export default useStore;
 

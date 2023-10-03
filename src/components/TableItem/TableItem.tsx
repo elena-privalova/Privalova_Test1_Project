@@ -1,40 +1,71 @@
-import { type FC, useState } from 'react';
+import {
+  useState,
+  MouseEvent,
+  useEffect
+} from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+
+import { useStore } from '../..';
+import { UserData } from '../../store/types';
 
 import './tableItem.css';
 
-const TableItem: FC<TableItemProps> = ({ user, countPosts }) => {
+type TableItemProps = {
+  user: UserData,
+  countPosts: number,
+  numberUser: number
+};
+
+export const TableItem = (props: TableItemProps) => {
+  const currentUsers = useStore((state) => state.currentUsers);
+  const setStartUserNumber = useStore((state) => state.setStartUserNumber);
+  const setCurrentUsers = useStore((state) => state.setCurrentUsers);
+
   const { userId } = useParams();
 
   const navigate = useNavigate();
 
-  const [isSelect, setSelect] = useState(false);
+  const [isSelect, setIsSelect] = useState(false);
+  const [isSelectInterval, setIsSelectInterval] = useState(false);
 
   const handleClickRow = () => {
-    setSelect((prevState) => !prevState);
+    setStartUserNumber(props.numberUser);
     if (!isSelect) {
-      navigate(`/${user.id}`);
+      navigate(`/${props.user.id}`);
     }
     else {
       navigate('/', { replace: true });
     }
+    setIsSelect((prevState) => !prevState);
   };
 
-  const isHighlighted = (isSelect || user.id === Number(userId))
-    && userId != null;
+  const isHighlighted = (isSelect || props.user.id === Number(userId))
+    && userId != null
+    || isSelectInterval;
+
+  const handleMouseDown = (event: MouseEvent<HTMLTableRowElement>) => {
+    if (event.shiftKey) {
+      setCurrentUsers(props.numberUser);
+    }
+  };
+
+  useEffect(() => {
+    if (currentUsers.includes(props.user.id)) {
+      setIsSelectInterval(true);
+    }
+  }, [currentUsers]);
 
   return (
     <tr
-      className={isHighlighted ? 'select-row' : ''}
+      className={isHighlighted ? 'table-row_select' : 'table-row'}
       onClick={handleClickRow}
+      onMouseDown={handleMouseDown}
     >
-      <td>{user.name}</td>
-      <td>{user.username}</td>
-      <td>{user.email}</td>
-      <td>{countPosts}</td>
+      <td>{props.user.name}</td>
+      <td>{props.user.username}</td>
+      <td>{props.user.email}</td>
+      <td>{props.countPosts}</td>
     </tr>
   );
 };
-
-export default TableItem;
 

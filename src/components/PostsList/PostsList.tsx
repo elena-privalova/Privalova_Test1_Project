@@ -1,12 +1,11 @@
 import { useEffect, type FC } from 'react';
 import { useParams } from 'react-router-dom';
 
-import PostItem from '../PostItem/PostItem';
-import useStore from '../../store';
+import { useStore, PostItem } from '../..';
 
 import './postsList.css';
 
-const PostsList: FC = () => {
+export const PostsList: FC = () => {
   const { userId } = useParams();
   const formatedId = Number(userId);
 
@@ -17,11 +16,9 @@ const PostsList: FC = () => {
   }, [formatedId]);
 
   return (
-    <div className="posts-container">
+    <div className="layout-container__posts post">
       {userPosts.map((post) => <PostItem key={post.id} postItem={post} />)}
     </div>
   );
 };
-
-export default PostsList;
 

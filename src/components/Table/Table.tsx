@@ -1,12 +1,16 @@
-import { type FC } from 'react';
-
-import TableItem from '../TableItem/TableItem';
+import { UserData } from '../../store/types';
+import { TableItem } from '../..';
 
 import './table.css';
 
-const Table: FC<TableContainerProps> = ({ users, countsPosts }) => {
+type TableProps = {
+  users: UserData[],
+  countsPosts: number[],
+};
+
+export const Table = (props: TableProps) => {
   return (
-    <table>
+    <table className="layout-container__table table-row">
       <thead>
         <tr>
           <th>Name</th>
@@ -16,16 +20,16 @@ const Table: FC<TableContainerProps> = ({ users, countsPosts }) => {
         </tr>
       </thead>
       <tbody>
-        {users.map((user, index) => {
-          return <TableItem
+        {props.users.map((user, index) =>
+          <TableItem
             key={user.id}
             user={user}
-            countPosts={countsPosts[index]}
-          />;
-        })}
+            countPosts={props.countsPosts[index]}
+            numberUser={index}
+          />
+        )}
       </tbody>
     </table>
   );
 };
 
-export default Table;

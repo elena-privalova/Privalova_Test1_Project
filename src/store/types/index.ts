@@ -17,7 +17,7 @@ interface AddressData {
   geo: GeoData,
 }
 
-interface UserData {
+export interface UserData {
   id: number,
   name: string,
   username: string,
@@ -28,23 +28,27 @@ interface UserData {
   address: AddressData,
 }
 
-interface PostData {
+export interface PostData {
   id: number,
   body: string,
   title: string,
   userId: number,
 }
 
-interface StoreState {
+export interface StoreState {
   users: UserData[],
   usersError: string,
   countsUsersPosts: number[],
   allPosts: PostData[],
+  startUserNumber: number;
+  currentUsers: number[],
   userPosts: PostData[],
   postsError: string,
   getUsers: () => Promise<void>,
   setCountsUsersPosts: () => void
   getAllPosts: () => Promise<void>,
+  setStartUserNumber: (userNumber: number) => void,
+  setCurrentUsers: (userNumber: number) => void,
   getUserPosts: (userId: number) => Promise<void>,
 }
 

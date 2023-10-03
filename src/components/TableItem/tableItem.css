@@ -1,8 +1,8 @@
-tr {
+.table-row {
   user-select: auto;
   cursor: text;
 }
 
-.select-row {
+.table-row_select {
   background-color: cadetblue;
 }
