@@ -1,0 +1,8 @@
+tr {
+  user-select: auto;
+  cursor: text;
+}
+
+.select-row {
+  background-color: cadetblue;
+}

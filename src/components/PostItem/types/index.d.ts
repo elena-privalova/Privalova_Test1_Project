@@ -1,0 +1,4 @@
+interface PostItemProps {
+  postItem: PostData
+}
+
