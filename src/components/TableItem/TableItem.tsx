@@ -5,8 +5,8 @@ import {
 } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { useStore } from '../..';
 import { UserData } from '../../store/types';
+import { useStore } from '../..';
 
 import './tableItem.css';
 
@@ -17,9 +17,7 @@ type TableItemProps = {
 };
 
 export const TableItem = (props: TableItemProps) => {
-  const currentUsers = useStore((state) => state.currentUsers);
-  const setStartUserNumber = useStore((state) => state.setStartUserNumber);
-  const setCurrentUsers = useStore((state) => state.setCurrentUsers);
+  const users = useStore((state) => state.users);
 
   const { userId } = useParams();
 
@@ -28,38 +26,59 @@ export const TableItem = (props: TableItemProps) => {
   const [isSelect, setIsSelect] = useState(false);
   const [isSelectInterval, setIsSelectInterval] = useState(false);
 
-  const handleClickRow = () => {
-    setStartUserNumber(props.numberUser);
-    if (!isSelect) {
-      navigate(`/${props.user.id}`);
-    }
-    else {
-      navigate('/', { replace: true });
-    }
-    setIsSelect((prevState) => !prevState);
-  };
-
-  const isHighlighted = (isSelect || props.user.id === Number(userId))
-    && userId != null
-    || isSelectInterval;
-
-  const handleMouseDown = (event: MouseEvent<HTMLTableRowElement>) => {
-    if (event.shiftKey) {
-      setCurrentUsers(props.numberUser);
-    }
-  };
-
-  useEffect(() => {
-    if (currentUsers.includes(props.user.id)) {
+  const handleClickRow = (event: MouseEvent<HTMLTableRowElement>) => {
+    if (event.shiftKey && !userId?.includes('-')) {
+      navigate(`/${userId}-${props.user.id}`);
       setIsSelectInterval(true);
     }
-  }, [currentUsers]);
+    else {
+      if (isSelectInterval) {
+        navigate('/', { replace: true });
+      }
+      else {
+        if (!isSelect) {
+          navigate(`/${props.user.id}`);
+        }
+        else {
+          navigate('/', { replace: true });
+        }
+      }
+    }
+  };
+
+  const isOneRowHighlighted =
+    (isSelect && props.user.id === Number(userId)) &&
+    userId != null;
+
+  useEffect(() => {
+    if (userId != undefined) {
+      if (!userId.includes('-')) {
+        setIsSelect(true);
+        setIsSelectInterval(false);
+      }
+      else{
+        const ids = userId.split('-');
+        const start = users.findIndex((user) => user.id === Number(userId[0]));
+        const end = users.findIndex((user) => user.id === Number(ids[ids.length - 1]));
+        if (props.numberUser >= start && props.numberUser <= end) {
+          setIsSelectInterval(true);
+        }
+      }
+    }
+    else {
+      setIsSelect(false);
+      setIsSelectInterval(false);
+    }
+  }, [userId]);
 
   return (
     <tr
-      className={isHighlighted ? 'table-row_select' : 'table-row'}
+      className={isOneRowHighlighted ||
+        isSelectInterval ?
+        'table-row_select' :
+        'table-row'
+      }
       onClick={handleClickRow}
-      onMouseDown={handleMouseDown}
     >
       <td>{props.user.name}</td>
       <td>{props.user.username}</td>

@@ -5,17 +5,18 @@ import api from './adapter';
 import { StoreState } from './types';
 
 export const useStore = create<StoreState>((set, get) => ({
+  isUsersLoading: false,
   users: [],
   usersError: '',
   countsUsersPosts: [],
   allPosts: [],
-  startUserNumber: 0,
-  currentUsers: [],
   userPosts: [],
   postsError: '',
   getUsers: async() => {
+    set({ isUsersLoading: true });
     try {
       const { data } = await api.get('users');
+      set({ isUsersLoading: false });
       set({ users: data });
       set({ usersError: '' });
       get().setCountsUsersPosts();
@@ -49,21 +50,26 @@ export const useStore = create<StoreState>((set, get) => ({
       }
     }
   },
-  setStartUserNumber: (userNumber: number) => {
-    set({ startUserNumber: userNumber });
-  },
-  setCurrentUsers: (userNumber: number) => {
-    const usersArray = get().users.map((user, index) => {
-      if (index >= get().startUserNumber && index <= userNumber) {
-        return user.id;
-      }
-    });
-    set({ currentUsers: usersArray as number[] });
-  },
-  getUserPosts: async(userId: number) => {
+  getUserPosts: async(startId: number, endId?: number) => {
     try {
-      const { data } = await api.get(`posts?userId=${userId}`);
-      set({ userPosts: data });
+      if (endId == undefined) {
+        const { data } = await api.get(`posts?userId=${startId}`);
+        set({ userPosts: data });
+      }
+      else {
+        if (get().userPosts.length > 0) set({ userPosts: [] });
+        console.log(get().userPosts);
+        const startIndex = get().users.findIndex((user) => user.id === startId);
+        const endIndex = get().users.findIndex((user) => user.id === endId);
+        const sliceUsers = get().users;
+        sliceUsers.slice(startIndex, endIndex+1).forEach((user) => {
+          api.get(`posts?userId=${user.id}`)
+            .then(res => {
+              set({ userPosts: [...get().userPosts, ...res.data] });
+              console.log('then', get().userPosts);
+            });
+        });
+      }
     }
     catch(e) {
       if (e instanceof AxiosError) {
