@@ -8,13 +8,15 @@ import { PostData } from './types';
 
 export type PostsState = {
   userPosts: PostData[],
-  postsError: string,
+  userPostsError: string,
+  error: string,
   getUserPosts: (startId: number, endId?: number, users?: UserData[]) => Promise<void>,
 }
 
 export const usePostsStore = create<PostsState>((set, get) => ({
   userPosts: [],
-  postsError: '',
+  userPostsError: '',
+  error: '',
   countsUsersPosts: [],
   getUserPosts: async(startId: number, endId?: number, users?: UserData[]) => {
     try {
@@ -34,10 +36,17 @@ export const usePostsStore = create<PostsState>((set, get) => ({
               set({ userPosts: [...get().userPosts, ...res.data.posts] });
             });
         });
+
+        set({
+          userPostsError: '',
+          error: ''
+        });
       }
     } catch(e) {
       if (e instanceof AxiosError) {
-        console.log(e.message);
+        set({ userPostsError: e.message });
+      } else if (e instanceof Error) {
+        set({ error: e.message });
       }
     }
   }

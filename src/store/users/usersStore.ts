@@ -6,50 +6,72 @@ import api from '../adapter';
 import { UserData } from './types';
 
 type UserState = {
-  isUsersLoading: boolean,
+  isLoading: boolean,
   currentUser: number,
   users: UserData[],
   countsUsersPosts: number[],
   usersError: string,
+  countsPostsError: string,
+  error: string,
   setCurrentUser: (userId: number) => void;
-  getUsers: () => Promise<UserData[]>,
+  getUsers: () => Promise<void>,
   getCountsUsersPosts: (users: UserData[]) => void,
 }
 
 export const useUserStore = create<UserState>((set, get) => ({
-  isUsersLoading: false,
+  isLoading: false,
   currentUser: 0,
   users: [],
   usersError: '',
   countsUsersPosts: [],
+  countsPostsError: '',
+  error: '',
   setCurrentUser: (userId) => {
     set({ currentUser: userId });
   },
   getUsers: async() => {
-    set({ isUsersLoading: true });
+    set({ isLoading: true });
+
     try {
       const { data } = await api.get('users');
+      await get().getCountsUsersPosts(data.users);
+
       set({
-        isUsersLoading: false,
+        isLoading: false,
         users: data.users,
-        usersError: ''
+        usersError: '',
+        error: ''
       });
-      return data.users;
     } catch (e) {
       if (e instanceof AxiosError) {
         set({ usersError: e.message });
+      } else if (e instanceof Error) {
+        set({ error: e.message });
       }
     }
   },
   getCountsUsersPosts: (users) => {
-    users.forEach((user) => {
-      api.get(`users/${user.id}/posts`)
-        .then((res) => res.data)
-        .then((res) => res.posts)
-        .then((posts) => {
-          set({ countsUsersPosts: [...get().countsUsersPosts, posts.length] });
-        });
-    });
+    try {
+      users.forEach((user) => {
+        api.get(`users/${user.id}/posts`)
+          .then((res) => res.data)
+          .then((res) => res.posts)
+          .then((posts) => {
+            set({ countsUsersPosts: [...get().countsUsersPosts, posts.length] });
+          });
+      });
+
+      set({
+        countsPostsError: '',
+        error: ''
+      });
+    } catch(e) {
+      if (e instanceof AxiosError) {
+        set({ countsPostsError: e.message });
+      } else if (e instanceof Error) {
+        set({ error: e.message });
+      }
+    }
   }
 }));
 

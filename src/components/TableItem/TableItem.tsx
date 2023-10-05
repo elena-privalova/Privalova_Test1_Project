@@ -32,8 +32,7 @@ export const TableItem = (props: TableItemProps) => {
     if (event.shiftKey && !userId?.includes('-')) {
       navigate(`/${userId}-${props.user.id}`);
       setIsSelectInterval(true);
-    }
-    else {
+    } else {
       if (isSelectInterval) {
         navigate('/', { replace: true });
       } else {
