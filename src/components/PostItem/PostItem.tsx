@@ -1,4 +1,4 @@
-import { PostData } from '../../store/types';
+import { PostData } from '../../store/posts/types';
 
 import './postItem.css';
 

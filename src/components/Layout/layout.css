@@ -3,5 +3,8 @@
   flex-direction: column;
   align-items: center;
   padding-top: 50px;
+  height: auto;
+  min-height: 100vh;
+  background-color: #f2f2f2;
 }
 

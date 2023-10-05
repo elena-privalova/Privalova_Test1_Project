@@ -1,4 +1,4 @@
-import { UserData } from '../../store/types';
+import { UserData } from '../../store/users/types';
 import { TableItem } from '../..';
 
 import './table.css';
@@ -10,22 +10,23 @@ type TableProps = {
 
 export const Table = (props: TableProps) => {
   return (
-    <table className="layout-container__table table-row">
+    <table className="layout-container__table table-user">
       <thead>
         <tr>
           <th>Name</th>
           <th>Username</th>
           <th>Email</th>
+          <th>Company</th>
           <th>Posts</th>
         </tr>
       </thead>
       <tbody>
         {props.users.map((user, index) =>
           <TableItem
-            key={user.id}
+            key={`${user.id}-${index}`}
             user={user}
-            countPosts={props.countsPosts[index]}
             numberUser={index}
+            countPosts={props.countsPosts[index]}
           />
         )}
       </tbody>
