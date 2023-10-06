@@ -11,7 +11,7 @@ export const PostsList: FC = () => {
   const isLoading = useUserStore((state) => state.isLoading);
   const users = useUserStore((state) => state.users);
   const userPosts = usePostsStore((state) => state.userPosts);
-  const userPostsError = usePostsStore((state) => state.userPostsError);
+
   const getUserPosts = usePostsStore((state) => state.getUserPosts);
 
   useEffect(() => {
@@ -23,9 +23,9 @@ export const PostsList: FC = () => {
 
   return (
     <div className="layout-container__posts post">
-      {!userPostsError && !isLoading && (
-        userPosts.map((post, index) =>
-          <PostItem key={`${post.id}-${index}`} postItem={post} />
+      {!isLoading && (
+        userPosts.map((post) =>
+          <PostItem key={`${post.id}`} postItem={post} />
         )
       )}
     </div>

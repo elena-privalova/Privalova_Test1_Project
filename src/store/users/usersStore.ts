@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { AxiosError } from 'axios';
+import { toast } from 'react-toastify';
 
 import api from '../adapter';
 
@@ -45,9 +46,10 @@ export const useUserStore = create<UserState>((set, get) => ({
     } catch (e) {
       if (e instanceof AxiosError) {
         set({ usersError: e.message });
-      } else if (e instanceof Error) {
-        set({ error: e.message });
+        toast.error(e.message);
+        return;
       }
+      set({ error: 'Failed to get users' });
     }
   },
   getCountsUsersPosts: async (users) => {
@@ -64,9 +66,10 @@ export const useUserStore = create<UserState>((set, get) => ({
     } catch(e) {
       if (e instanceof AxiosError) {
         set({ countsPostsError: e.message });
-      } else if (e instanceof Error) {
-        set({ error: e.message });
+        toast.error(e.message);
+        return;
       }
+      set({ error: 'Failed to count posts' });
     }
   }
 }));

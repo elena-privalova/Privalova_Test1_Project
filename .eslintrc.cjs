@@ -13,6 +13,7 @@ module.exports = {
   parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
   plugins: ['react-refresh', 'import', 'react'],
   rules: {
+    'react-hooks/exhaustive-deps': 'off',
     'react-refresh/only-export-components': 'off',
     'object-curly-spacing': ['error', 'always'],
     'quotes': ['error', 'single'],

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { AxiosError } from 'axios';
+import { toast } from 'react-toastify';
 
 import api from '../adapter';
 import { UserData } from '../users/types';
@@ -45,9 +46,10 @@ export const usePostsStore = create<PostsState>((set, get) => ({
     } catch(e) {
       if (e instanceof AxiosError) {
         set({ userPostsError: e.message });
-      } else if (e instanceof Error) {
-        set({ error: e.message });
+        toast.error(e.message);
+        return;
       }
+      set({ error: 'Failed to get posts' });
     }
   }
 }));
