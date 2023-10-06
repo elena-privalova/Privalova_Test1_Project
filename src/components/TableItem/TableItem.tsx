@@ -4,6 +4,7 @@ import {
   useEffect
 } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import classNames from 'classnames';
 
 import { UserData } from '../../store/users/types';
 import { useUserStore } from '../..';
@@ -32,51 +33,59 @@ export const TableItem = (props: TableItemProps) => {
     if (event.shiftKey && !userId?.includes('-')) {
       navigate(`/${userId}-${props.user.id}`);
       setIsSelectInterval(true);
-    } else {
-      if (isSelectInterval) {
-        navigate('/', { replace: true });
-      } else {
-        setCurrentUser(props.user.id);
-        if (!isSelect || props.user.id !== currentUser) {
-          navigate(`/${props.user.id}`);
-        } else {
-          navigate('/', { replace: true });
-        }
-        setIsSelect((prevState) => !prevState);
-      }
+      return;
     }
+
+    if (isSelectInterval) {
+      navigate('/', { replace: true });
+      return;
+    }
+
+    setCurrentUser(props.user.id);
+    if (isSelect && props.user.id === currentUser) {
+      navigate('/', { replace: true });
+    } else if (!isSelect || props.user.id !== currentUser) {
+      navigate(`/${props.user.id}`);
+    }
+    setIsSelect((prevState) => !prevState);
   };
 
   const isOneUserHighlighted =
     (isSelect && props.user.id === Number(userId)) &&
     userId != null;
 
+  const isOneUserSelect = userId != undefined && !userId.includes('-');
+  const isSeveralUsersSelect = userId != undefined && userId.includes('-');
+
   useEffect(() => {
-    if (userId != undefined) {
-      if (!userId.includes('-')) {
-        setIsSelect(true);
-        setIsSelectInterval(false);
-      } else {
-        const ids = userId.split('-');
-        const start = users.findIndex((user) => user.id === Number(ids[0]));
-        const end = users.findIndex((user) => user.id === Number(ids[ids.length - 1]));
-        if (props.numberUser >= start && props.numberUser <= end) {
-          setIsSelectInterval(true);
-        }
-      }
-    } else {
-      setIsSelect(false);
+    if (isOneUserSelect) {
+      setIsSelect(true);
       setIsSelectInterval(false);
+      return;
     }
+
+    if (isSeveralUsersSelect) {
+      const ids = userId.split('-');
+      const start = users.findIndex((user) => user.id === Number(ids[0]));
+      const end = users.findIndex((user) => user.id === Number(ids[1]));
+      if (props.numberUser >= start && props.numberUser <= end) {
+        setIsSelectInterval(true);
+      }
+      return;
+    }
+
+    setIsSelect(false);
+    setIsSelectInterval(false);
   }, [userId]);
+
+  const tableRowClass = classNames({
+    'table-user': true,
+    'table-user_select': isOneUserHighlighted || isSelectInterval
+  });
 
   return (
     <tr
-      className={isOneUserHighlighted ||
-        isSelectInterval ?
-        'table-user_select' :
-        'table-user'
-      }
+      className={tableRowClass}
       onClick={handleClickUser}
     >
       <td>{`${props.user.firstName} ${props.user.lastName}`}</td>

@@ -15,7 +15,7 @@ type UserState = {
   error: string,
   setCurrentUser: (userId: number) => void;
   getUsers: () => Promise<void>,
-  getCountsUsersPosts: (users: UserData[]) => void,
+  getCountsUsersPosts: (users: UserData[]) => Promise<void>,
 }
 
 export const useUserStore = create<UserState>((set, get) => ({
@@ -50,16 +50,12 @@ export const useUserStore = create<UserState>((set, get) => ({
       }
     }
   },
-  getCountsUsersPosts: (users) => {
+  getCountsUsersPosts: async (users) => {
     try {
-      users.forEach((user) => {
-        api.get(`users/${user.id}/posts`)
-          .then((res) => res.data)
-          .then((res) => res.posts)
-          .then((posts) => {
-            set({ countsUsersPosts: [...get().countsUsersPosts, posts.length] });
-          });
-      });
+      for (const user of users) {
+        const { data } = await api.get(`users/${user.id}/posts`);
+        set({ countsUsersPosts: [...get().countsUsersPosts, data.posts.length] });
+      }
 
       set({
         countsPostsError: '',

@@ -23,7 +23,7 @@ export const Table = (props: TableProps) => {
       <tbody>
         {props.users.map((user, index) =>
           <TableItem
-            key={`${user.id}-${index}`}
+            key={user.id}
             user={user}
             numberUser={index}
             countPosts={props.countsPosts[index]}

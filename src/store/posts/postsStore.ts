@@ -10,7 +10,7 @@ export type PostsState = {
   userPosts: PostData[],
   userPostsError: string,
   error: string,
-  getUserPosts: (startId: number, endId?: number, users?: UserData[]) => Promise<void>,
+  getUserPosts: (ids: string[], users: UserData[]) => Promise<void>,
 }
 
 export const usePostsStore = create<PostsState>((set, get) => ({
@@ -18,16 +18,16 @@ export const usePostsStore = create<PostsState>((set, get) => ({
   userPostsError: '',
   error: '',
   countsUsersPosts: [],
-  getUserPosts: async(startId: number, endId?: number, users?: UserData[]) => {
+  getUserPosts: async(ids: string[], users: UserData[]) => {
     try {
-      if (endId == undefined) {
-        const { data } = await api.get(`posts/user/${startId}`);
+      if (ids.length === 1) {
+        const { data } = await api.get(`posts/user/${ids[0]}`);
         set({ userPosts: data.posts });
-      } else if (users != undefined) {
+      } else {
         if (get().userPosts.length > 0) set({ userPosts: [] });
 
-        const startIndex = users.findIndex((user) => user.id === startId);
-        const endIndex = users.findIndex((user) => user.id === endId);
+        const startIndex = users.findIndex((user) => user.id === Number(ids[0]));
+        const endIndex = users.findIndex((user) => user.id === Number(ids[1]));
         const sliceUsers = users;
 
         sliceUsers.slice(startIndex, endIndex+1).forEach((user) => {
