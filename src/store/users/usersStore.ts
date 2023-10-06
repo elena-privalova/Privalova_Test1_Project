@@ -51,7 +51,7 @@ export const useUserStore = create<UserState>((set, get) => ({
 
     try {
       const { data } = await api
-        .get(`users?limit=10&skip=${(activePage - 1) * COUNT_USERS_ON_PAGE}`);
+        .get(`users?limit=${COUNT_USERS_ON_PAGE}&skip=${(activePage - 1) * COUNT_USERS_ON_PAGE}`);
       await get().getCountsUsersPosts(data.users);
 
       set({
@@ -71,10 +71,12 @@ export const useUserStore = create<UserState>((set, get) => ({
   },
   getCountsUsersPosts: async (users) => {
     try {
+      const countsPosts: number[] = [];
       for (const user of users) {
         const { data } = await api.get(`users/${user.id}/posts`);
-        set({ countsUsersPosts: [...get().countsUsersPosts, data.posts.length] });
+        countsPosts.push(data.total);
       }
+      set({ countsUsersPosts: countsPosts });
 
       set({
         countsPostsError: '',
