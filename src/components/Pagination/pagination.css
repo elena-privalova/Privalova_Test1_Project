@@ -1,0 +1,18 @@
+.layout-container__pagination {
+  display: flex;
+  width: auto;
+  gap: 10px;
+}
+
+.layout-container__pagination button {
+  cursor: pointer;
+  display: inline-block;
+  width: 40px;
+  height: 30px;
+  border: 1px solid gray;
+}
+
+.pagination__select-btn {
+  background-color: rgb(199, 199, 199);
+}
+
