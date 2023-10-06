@@ -1,8 +1,9 @@
-.table-row {
+.table-user {
   user-select: auto;
   cursor: text;
 }
 
-.table-row_select {
+.table-user_select {
   background-color: cadetblue;
 }
+

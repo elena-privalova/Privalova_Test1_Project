@@ -3,7 +3,8 @@
   flex-direction: column;
   justify-content: space-around;
   width: 250px;
-  height: 250px;
+  height: auto;
+  min-height: 250px;
   padding: 5px;
   border: 2px solid cadetblue;
 }

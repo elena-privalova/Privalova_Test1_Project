@@ -1,24 +1,26 @@
 import { useEffect } from 'react';
+import Skeleton from 'react-loading-skeleton';
 
-import { useStore, Table } from '../..';
+import { useUserStore, Table } from '../..';
 
 export const Main = () => {
-  const users = useStore((state) => state.users);
-  const usersError = useStore((state) => state.usersError);
-  const countsUsersPosts = useStore((state) => state.countsUsersPosts);
-  const getUsers = useStore((state) => state.getUsers);
+  const isLoading = useUserStore((state) => state.isLoading);
+  const users = useUserStore((state) => state.users);
+
+  const getUsers = useUserStore((state) => state.getUsers);
+  const countsUsersPosts = useUserStore((state) => state.countsUsersPosts);
 
   useEffect(() => {
     getUsers();
   }, []);
 
-  if (usersError) {
-    alert(usersError);
-    return null;
-  }
-
   return (
-    <Table users={users} countsPosts={countsUsersPosts} />
+    <>
+      {isLoading ?
+        <Skeleton width={400} height={600} /> :
+        <Table users={users} countsPosts={countsUsersPosts} />
+      }
+    </>
   );
 };
 

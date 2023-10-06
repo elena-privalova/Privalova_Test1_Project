@@ -5,7 +5,7 @@ import PostItem from './components/PostItem/PostItem';
 import { PostsList } from './components/PostsList/PostsList';
 import { Table } from './components/Table/Table';
 import { TableItem } from './components/TableItem/TableItem';
-import { useStore } from './store';
+import { useUserStore, usePostsStore } from './store';
 
 export {
   App,
@@ -15,6 +15,7 @@ export {
   PostsList,
   Table,
   TableItem,
-  useStore
+  useUserStore,
+  usePostsStore
 };
 
