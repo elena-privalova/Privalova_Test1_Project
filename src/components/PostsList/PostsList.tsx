@@ -1,7 +1,8 @@
-import { useEffect, type FC } from 'react';
+import { useEffect, type FC, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { PostItem, useUserStore, usePostsStore } from '../..';
+import { COUNT_USERS_ON_PAGE } from '../../constants';
 
 import './postsList.css';
 
@@ -12,20 +13,26 @@ export const PostsList: FC = () => {
   const users = useUserStore((state) => state.users);
   const userPosts = usePostsStore((state) => state.userPosts);
 
+  const activePage = usePostsStore((state) => state.activePage);
   const getUserPosts = usePostsStore((state) => state.getUserPosts);
+
+  const [isSelectUseOnCurrentPage, setIsSelectUseOnCurrentPage] = useState(false);
 
   useEffect(() => {
     if (userId != undefined) {
       const ids = userId.split('-');
+      console.log(ids[0]);
       getUserPosts([...ids], users);
+      setIsSelectUseOnCurrentPage(Number(ids[0]) >= (activePage - 1) * COUNT_USERS_ON_PAGE &&
+        Number(ids[0]) <= (activePage) * COUNT_USERS_ON_PAGE);
     }
   }, [userId, isLoading]);
 
   return (
     <div className="layout-container__posts post">
-      {!isLoading && (
+      {!isLoading && isSelectUseOnCurrentPage && (
         userPosts.map((post) =>
-          <PostItem key={`${post.id}`} postItem={post} />
+          <PostItem key={post.id} postItem={post} />
         )
       )}
     </div>
