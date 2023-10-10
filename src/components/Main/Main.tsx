@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
-import { Table } from '../Table/Table';
-import { Pagination } from '../Pagination/Pagination';
 import { useUserStore, usePostsStore } from '../../store';
+
+import { Table, Pagination } from '.';
 
 export const Main = () => {
   const isLoading = useUserStore((state) => state.isLoading);
