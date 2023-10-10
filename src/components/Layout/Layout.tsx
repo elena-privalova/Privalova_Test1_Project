@@ -3,7 +3,8 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-import { Main, usePostsStore, useUserStore } from '../..';
+import { Main } from '../Main/Main';
+import { usePostsStore, useUserStore } from '../../store';
 
 import './layout.css';
 

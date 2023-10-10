@@ -1,5 +1,5 @@
 import { UserData } from '../../store/users/types';
-import { TableItem } from '../..';
+import { TableItem } from '../TableItem/TableItem';
 
 import './table.css';
 

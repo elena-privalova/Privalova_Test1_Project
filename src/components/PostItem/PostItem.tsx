@@ -4,7 +4,7 @@ import './postItem.css';
 
 type PostItemProps = { postItem: PostData };
 
-const PostItem = (props: PostItemProps) => {
+export const PostItem = (props: PostItemProps) => {
   return (
     <div className="post__item">
       <div>
@@ -18,6 +18,4 @@ const PostItem = (props: PostItemProps) => {
     </div>
   );
 };
-
-export default PostItem;
 
