@@ -50,8 +50,13 @@ export const useUserStore = create<UserState>((set, get) => ({
     set({ isLoading: true });
 
     try {
+      const params = new URLSearchParams({
+        limit: `${COUNT_USERS_ON_PAGE}`,
+        skip: `${(activePage - 1) * COUNT_USERS_ON_PAGE}`
+      });
+
       const { data } = await api
-        .get(`users?limit=${COUNT_USERS_ON_PAGE}&skip=${(activePage - 1) * COUNT_USERS_ON_PAGE}`);
+        .get(`users?${params.toString()}`);
       await get().getCountsUsersPosts(data.users);
 
       set({

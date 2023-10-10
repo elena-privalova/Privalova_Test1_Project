@@ -1,6 +1,7 @@
 import { MouseEvent } from 'react';
+import classNames from 'classnames';
 
-import { usePostsStore, useUserStore } from '../..';
+import { usePostsStore, useUserStore } from '../../store';
 import { COUNT_USERS_ON_PAGE } from '../../constants';
 
 import './pagination.css';
@@ -17,19 +18,17 @@ export const Pagination = () => {
     }
   };
 
+  const pagesArray: number[] = Array.from({ length: countUsers / COUNT_USERS_ON_PAGE }, (_, i) => i + 1);
+
   return (
     <div className="layout-container__pagination pagination" onClick={handleChangePageNmber}>
-      {Array.from({ length: countUsers / COUNT_USERS_ON_PAGE })
-        .map((page, index) =>
-          <button
-            key={index}
-            className={activePage === index + 1 ?
-              'pagination__select-btn' :
-              ''
-            }
-          >
-            {index+1}
-          </button>)}
+      {pagesArray.map((page) =>
+        <button
+          key={page}
+          className={classNames({ 'pagination__select-btn': activePage === page })}
+        >
+          {page}
+        </button>)}
     </div>
   );
 };

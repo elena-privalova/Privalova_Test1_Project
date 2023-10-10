@@ -7,7 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import classNames from 'classnames';
 
 import { UserData } from '../../store/users/types';
-import { useUserStore } from '../..';
+import { useUserStore } from '../../store';
 
 import './tableItem.css';
 

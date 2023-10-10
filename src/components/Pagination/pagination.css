@@ -1,3 +1,5 @@
+@import '../../theme.css';
+
 .layout-container__pagination {
   display: flex;
   width: auto;
@@ -13,6 +15,6 @@
 }
 
 .pagination__select-btn {
-  background-color: rgb(199, 199, 199);
+  background-color: var(--page-color);
 }
 
