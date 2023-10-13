@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 
+import { usePostsStore } from '../posts/postsStore';
 import api from '../adapter';
 import { COUNT_USERS_ON_PAGE } from '../../constants';
 
@@ -9,6 +10,7 @@ import { UserData } from './types';
 
 type UserState = {
   isLoading: boolean,
+  startUser: number,
   currentUser: number,
   users: UserData[],
   countUsers: number,
@@ -17,13 +19,15 @@ type UserState = {
   countsPostsError: string,
   error: string,
   getCountUsers: () => Promise<void>,
-  getSliceUsers: (activePage: number) => Promise<void>,
+  getSliceUsers: () => Promise<void>,
   getCountsUsersPosts: (users: UserData[]) => Promise<void>,
   setCurrentUser: (userId: number) => void;
+  setStartUser: (userId: number) => void,
 }
 
 export const useUserStore = create<UserState>((set, get) => ({
   isLoading: false,
+  startUser: 0,
   currentUser: 0,
   users: [],
   countUsers: 0,
@@ -46,10 +50,12 @@ export const useUserStore = create<UserState>((set, get) => ({
       set({ error: 'Failed to get users' });
     }
   },
-  getSliceUsers: async(activePage: number) => {
+  getSliceUsers: async () => {
     set({ isLoading: true });
 
     try {
+      const activePage = usePostsStore.getState().activePage;
+
       const params = new URLSearchParams({
         limit: `${COUNT_USERS_ON_PAGE}`,
         skip: `${(activePage - 1) * COUNT_USERS_ON_PAGE}`
@@ -76,14 +82,12 @@ export const useUserStore = create<UserState>((set, get) => ({
   },
   getCountsUsersPosts: async (users) => {
     try {
-      const countsPosts: number[] = [];
-      for (const user of users) {
-        const { data } = await api.get(`users/${user.id}/posts`);
-        countsPosts.push(data.total);
-      }
-      set({ countsUsersPosts: countsPosts });
+      const countsPosts = await Promise.all(users.map((user) => {
+        return api.get(`users/${user.id}/posts`).then((res) => res.data.total);
+      }));
 
       set({
+        countsUsersPosts: countsPosts,
         countsPostsError: '',
         error: ''
       });
@@ -98,6 +102,9 @@ export const useUserStore = create<UserState>((set, get) => ({
   },
   setCurrentUser: (userId) => {
     set({ currentUser: userId });
+  },
+  setStartUser: (userId: number) => {
+    set({ startUser: userId });
   }
 }));
 

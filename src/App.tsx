@@ -10,7 +10,7 @@ export const App = () => {
       element: <Layout />,
       children: [
         {
-          path: ':userId',
+          path: 'posts',
           element: <PostsList />
         }
       ]
