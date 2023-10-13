@@ -1,9 +1,8 @@
 import { useUserStore } from '../../store';
 import { COUNT_USERS_ON_PAGE } from '../../constants';
 import { UserData } from '../../store/users/types';
-import { TableItem } from '../TableItem/TableItem';
-import { Skeleton } from '../Skeleton/Skeleton';
 
+import { Skeleton, TableItem } from '.';
 import './table.css';
 
 type TableProps = {
