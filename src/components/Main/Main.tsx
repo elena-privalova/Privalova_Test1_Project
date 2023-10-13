@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import Skeleton from 'react-loading-skeleton';
 import { useSearchParams } from 'react-router-dom';
 
 import { useUserStore, usePostsStore } from '../../store';
@@ -31,13 +30,10 @@ export const Main = () => {
 
   return (
     <>
-      {isLoading ?
-        <Skeleton width={400} height={600} /> :
-        <>
-          <Table users={users} countsPosts={countsUsersPosts} />
-          <Pagination />
-        </>
-      }
+      <Table users={users} countsPosts={countsUsersPosts} />
+      {!isLoading && (
+        <Pagination />
+      )}
     </>
   );
 };
