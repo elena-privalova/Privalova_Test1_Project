@@ -1,6 +1,6 @@
 .table-user {
   user-select: auto;
-  cursor: text;
+  cursor: pointer;
 }
 
 .table-user_select {
