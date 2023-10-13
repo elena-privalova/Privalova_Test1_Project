@@ -20,7 +20,9 @@ export const Main = () => {
 
   useEffect(() => {
     getCountUsers();
-    if (currentPage.get('page') != undefined) setActivePage(Number(currentPage.get('page')));
+    if (currentPage.get('page') != undefined) {
+      setActivePage(Number(currentPage.get('page')));
+    }
   }, []);
 
   useEffect(() => {

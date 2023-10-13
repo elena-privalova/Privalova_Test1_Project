@@ -6,6 +6,8 @@ import {
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import classNames from 'classnames';
 
+import { groupIds } from '../../utils/groupIds';
+import { getIndex } from '../../utils/getIndex';
 import { UserData } from '../../store/users/types';
 import { usePostsStore, useUserStore } from '../../store';
 
@@ -39,28 +41,6 @@ export const TableItem = (props: TableItemProps) => {
   const [isSelectByCmd, setIsSelectByCmd] = useState(false);
   const [isReadyToAddInInterval, setIsReadyToAddInInterval] = useState(false);
 
-  const groupIds = (ids: number[]) => {
-    let count = 0;
-    const formattedIds = ids.sort((a, b) => a - b).reduce((acc, id, index, ids) => {
-      if ((index + 1) <= ids.length && ids[index + 1] - id === 1) {
-        count++;
-      } else {
-        if (count !== 0) {
-          const newAcc = acc ?
-            `${acc},${ids[index - count]}-${id}` :
-            `${ids[index - count]}-${id}`;
-          count = 0;
-          return newAcc;
-        }
-        return acc ?
-          `${acc},${ids[index - count]}` :
-          `${ids[index - count]}`;
-      }
-      return acc;
-    }, '');
-    return formattedIds;
-  };
-
   useEffect(() => {
     window.addEventListener('keyup', handleKeyup);
   }, []);
@@ -71,23 +51,22 @@ export const TableItem = (props: TableItemProps) => {
 
   const handleMouseDown = (event: MouseEvent<HTMLTableRowElement>) => {
     if (!event.shiftKey) setStartUser(props.user.id);
-    if (event.metaKey) {
-      if (!isReadyToAddInInterval) {
-        setUsersPostsByCmd(props.user.id);
-        setIsSelectByCmd(true);
-        return;
-      }
+    if (event.metaKey && !isReadyToAddInInterval) {
+      setUsersPostsByCmd(props.user.id);
+      setIsSelectByCmd(true);
+      return;
     }
   };
 
   const handleMouseUp = (event: MouseEvent<HTMLTableRowElement>) => {
     if (!event.metaKey) {
       if (event.shiftKey && !userId?.includes('-') || props.user.id !== startUser) {
+        setIsSelectInterval(true);
         if (startUser > props.user.id) {
           navigate(`/posts?ids=${props.user.id}-${startUser}&page=${activePage}`);
+          return;
         }
-        else navigate(`posts?ids=${startUser}-${props.user.id}&page=${activePage}`);
-        setIsSelectInterval(true);
+        navigate(`posts?ids=${startUser}-${props.user.id}&page=${activePage}`);
         return;
       }
 
@@ -97,14 +76,18 @@ export const TableItem = (props: TableItemProps) => {
       }
 
       setCurrentUser(props.user.id);
+      setIsSelect((prevState) => !prevState);
+
       if (isSelect && props.user.id === currentUser) {
         navigate('/', { replace: true });
-      } else if (!isSelect || props.user.id !== currentUser) {
+        return;
+      }
+      if (!isSelect || props.user.id !== currentUser) {
         navigate(`posts/?ids=${props.user.id}&page=${activePage}`);
       }
-      setIsSelect((prevState) => !prevState);
       return;
     }
+
     if (isSelectByCmd) navigate('/', { replace: true });
     setIsSelect(false);
     setIsSelectInterval(false);
@@ -127,23 +110,24 @@ export const TableItem = (props: TableItemProps) => {
     }
 
     if (isSeveralUsersSelectByCmd) {
-      if (Number(page) === activePage) {
-        userId.split(',').forEach((id) => {
-          if (id.includes('-')) {
-            const ids = id.split('-');
-            const startIndex = users.findIndex((user) => user.id === Number(ids[0]));
-            const endIndex = users.findIndex((user) => user.id === Number(ids[1]));
-            const isInSelectInerval = props.numberUser >= startIndex &&
-              props.numberUser <= endIndex;
-            if (isInSelectInerval) setIsSelectByCmd(true);
-            return;
-          }
-
-          if (props.user.id === Number(id)) setIsSelectByCmd(true);
-        });
-      } else {
+      if (Number(page) !== activePage) {
         setUsersPostsByCmd(-1);
+        return;
       }
+
+      userId.split(',').forEach((id) => {
+        if (id.includes('-')) {
+          const ids = id.split('-');
+          const startIndex = getIndex(users, Number(ids[0]));
+          const endIndex = getIndex(users, Number(ids[1]));
+          const isInSelectInerval = props.numberUser >= startIndex &&
+            props.numberUser <= endIndex;
+          if (isInSelectInerval) setIsSelectByCmd(true);
+          return;
+        }
+
+        if (props.user.id === Number(id)) setIsSelectByCmd(true);
+      });
 
       if (props.numberUser === 0) setStartUser(props.user.id);
       return;
@@ -160,10 +144,9 @@ export const TableItem = (props: TableItemProps) => {
 
     if (isSeveralUsersSelect) {
       const ids = userId.split('-');
-      const start = users.findIndex((user) => {
-        return user.id === Number(ids[0]);
-      });
+      const start = users.findIndex((user) => user.id === Number(ids[0]));
       const end = users.findIndex((user) => user.id === Number(ids[1]));
+
       if (props.numberUser >= start && props.numberUser <= end) {
         setIsSelectInterval(true);
       } else setIsSelectInterval(false);

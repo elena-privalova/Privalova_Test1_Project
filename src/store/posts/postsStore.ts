@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 
 import api from '../adapter';
 import { UserData } from '../users/types';
+import { getIndex } from '../../utils/getIndex';
 import { useUserStore } from '../users/usersStore';
 
 import { PostData } from './types';
@@ -31,8 +32,8 @@ export const usePostsStore = create<PostsState>((set, get) => ({
     set({ activePage: numberPage });
   },
   getIntervalUsers: async (ids: string[], users: UserData[]) => {
-    const startIndex = users.findIndex((user) => user.id === Number(ids[0]));
-    const endIndex = users.findIndex((user) => user.id === Number(ids[1]));
+    const startIndex = getIndex(users, Number(ids[0]));
+    const endIndex = getIndex(users, Number(ids[1]));
 
     const usersPosts = await Promise.all(users.slice(startIndex, endIndex + 1).map((user) => {
       return api.get(`posts/user/${user.id}`).then(res => res.data.posts);
@@ -52,7 +53,7 @@ export const usePostsStore = create<PostsState>((set, get) => ({
       }
 
       if (selectedByShift) {
-        const usersPosts = await get().getIntervalUsers(ids.split(''), users);
+        const usersPosts = await get().getIntervalUsers(ids.split('-'), users);
 
         set({
           userPosts: usersPosts,
@@ -76,9 +77,7 @@ export const usePostsStore = create<PostsState>((set, get) => ({
 
         isStartOnInterval = separatedIdsByComma[0].includes('-');
 
-        sliceIds = isStartOnInterval ?
-          separatedIdsByComma.slice(sliceSeparatedIds.length) :
-          separatedIdsByComma.slice(0, sliceSeparatedIds.length);
+        sliceIds = separatedIdsByComma.filter((id) => !id.includes('-'));
       }
 
       const usersPosts = await Promise.all(sliceIds.map((id) => {
