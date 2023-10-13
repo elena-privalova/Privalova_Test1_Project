@@ -21,9 +21,9 @@ export const PostsList: FC = () => {
 
   useEffect(() => {
     if (userId != undefined) {
-      const selectedByShift = userId.includes('-');
+      const selectedByShift = userId.includes('-') && userId.length === 3;
+      getUserPosts(userId, selectedByShift);
       const ids = userId.split(/,|-/g);
-      getUserPosts([...ids], selectedByShift);
       const isMoreStartInterval = Number(ids[0]) > (activePage - 1) * COUNT_USERS_ON_PAGE;
       const isLessEndInterval = Number(ids[0]) <= (activePage) * COUNT_USERS_ON_PAGE;
       setIsSelectUserOnCurrentPage(isMoreStartInterval && isLessEndInterval);

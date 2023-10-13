@@ -39,6 +39,28 @@ export const TableItem = (props: TableItemProps) => {
   const [isSelectByCmd, setIsSelectByCmd] = useState(false);
   const [isReadyToAddInInterval, setIsReadyToAddInInterval] = useState(false);
 
+  const groupIds = (ids: number[]) => {
+    let count = 0;
+    const formattedIds = ids.sort((a, b) => a - b).reduce((acc, id, index, ids) => {
+      if ((index + 1) <= ids.length && ids[index + 1] - id === 1) {
+        count++;
+      } else {
+        if (count !== 0) {
+          const newAcc = acc ?
+            `${acc},${ids[index - count]}-${id}` :
+            `${ids[index - count]}-${id}`;
+          count = 0;
+          return newAcc;
+        }
+        return acc ?
+          `${acc},${ids[index - count]}` :
+          `${ids[index - count]}`;
+      }
+      return acc;
+    }, '');
+    return formattedIds;
+  };
+
   useEffect(() => {
     window.addEventListener('keyup', handleKeyup);
   }, []);
@@ -50,7 +72,7 @@ export const TableItem = (props: TableItemProps) => {
   const handleMouseDown = (event: MouseEvent<HTMLTableRowElement>) => {
     if (!event.shiftKey) setStartUser(props.user.id);
     if (event.metaKey) {
-      if (!isReadyToAddInInterval && !isSelectByCmd) {
+      if (!isReadyToAddInInterval) {
         setUsersPostsByCmd(props.user.id);
         setIsSelectByCmd(true);
         return;
@@ -98,7 +120,8 @@ export const TableItem = (props: TableItemProps) => {
 
   useEffect(() => {
     if (isReadyToAddInInterval) {
-      navigate(`posts/?ids=${userPostsByCmd}&page=${activePage}`);
+      const formatedIds = groupIds(userPostsByCmd);
+      navigate(`posts/?ids=${formatedIds}&page=${activePage}`);
       window.removeEventListener('keyup', handleKeyup);
       setIsReadyToAddInInterval(false);
     }
@@ -106,6 +129,16 @@ export const TableItem = (props: TableItemProps) => {
     if (isSeveralUsersSelectByCmd) {
       if (Number(page) === activePage) {
         userId.split(',').forEach((id) => {
+          if (id.includes('-')) {
+            const ids = id.split('-');
+            const startIndex = users.findIndex((user) => user.id === Number(ids[0]));
+            const endIndex = users.findIndex((user) => user.id === Number(ids[1]));
+            const isInSelectInerval = props.numberUser >= startIndex &&
+              props.numberUser <= endIndex;
+            if (isInSelectInerval) setIsSelectByCmd(true);
+            return;
+          }
+
           if (props.user.id === Number(id)) setIsSelectByCmd(true);
         });
       } else {
@@ -144,7 +177,6 @@ export const TableItem = (props: TableItemProps) => {
     if (props.numberUser === 0) setStartUser(props.user.id);
     setIsSelect(false);
     setIsSelectInterval(false);
-    setIsSelectByCmd(false);
   }, [userId, isReadyToAddInInterval]);
 
   const tableRowClass = classNames({
