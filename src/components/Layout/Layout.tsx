@@ -1,8 +1,9 @@
 import { Outlet } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
-import 'react-loading-skeleton/dist/skeleton.css';
 
-import { Main, WarningToaster } from '.';
+import { Main } from '../Main';
+import { WarningToaster } from '../WarningToaster';
+
 import './layout.css';
 
 export const Layout = () => {

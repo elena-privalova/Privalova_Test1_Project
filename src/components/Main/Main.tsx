@@ -1,19 +1,30 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
+import {
+  getCountUsers,
+  getSliceUsers,
+  selectCountsUsersPosts,
+  selectIsLoading,
+  selectUsers
+} from '../../store/users/selectors';
+import {
+  selectActivePage,
+  selectFinalPage,
+  setActivePage,
+  setFinalPage
+} from '../../store/posts/selectors';
 import { useUserStore, usePostsStore } from '../../store';
-
-import { Table, Pagination } from '.';
+import { Table } from '../Table';
+import { Pagination } from '../Pagination';
 
 export const Main = () => {
-  const isLoading = useUserStore((state) => state.isLoading);
-  const users = useUserStore((state) => state.users);
-  const getCountUsers = useUserStore((state) => state.getCountUsers);
-  const getSliceUsers = useUserStore((state) => state.getSliceUsers);
-  const countsUsersPosts = useUserStore((state) => state.countsUsersPosts);
+  const isLoading = useUserStore(selectIsLoading);
+  const users = useUserStore(selectUsers);
+  const countsUsersPosts = useUserStore(selectCountsUsersPosts);
 
-  const activePage = usePostsStore((state) => state.activePage);
-  const setActivePage = usePostsStore((state) => state.setActivePage);
+  const activePage = usePostsStore(selectActivePage);
+  const finalPage = usePostsStore(selectFinalPage);
 
   const [currentPage] = useSearchParams();
 
@@ -26,6 +37,10 @@ export const Main = () => {
 
   useEffect(() => {
     getSliceUsers();
+    if (activePage === finalPage - 1) {
+      setFinalPage(finalPage + 1);
+      getSliceUsers(true);
+    }
   }, [activePage]);
 
   return (

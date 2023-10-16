@@ -4,16 +4,16 @@ import './postItem.css';
 
 type PostItemProps = { postItem: PostData };
 
-export const PostItem = (props: PostItemProps) => {
+export const PostItem = ({ postItem }: PostItemProps) => {
   return (
     <div className="post__item">
       <div>
         <span>Title:</span>
-        <p>{props.postItem.title}</p>
+        <p>{postItem.title}</p>
       </div>
       <div>
         <span>Text:</span>
-        <p>{props.postItem.body}</p>
+        <p>{postItem.body}</p>
       </div>
     </div>
   );

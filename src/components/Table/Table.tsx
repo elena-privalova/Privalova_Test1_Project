@@ -1,8 +1,10 @@
-import { useUserStore } from '../../store';
+import { selectIsLoading } from '../../store/users/selectors';
 import { COUNT_USERS_ON_PAGE } from '../../constants';
 import { UserData } from '../../store/users/types';
+import { useUserStore } from '../../store';
+import { TableItem } from '../TableItem';
+import { Skeleton } from '../Skeleton';
 
-import { Skeleton, TableItem } from '.';
 import './table.css';
 
 type TableProps = {
@@ -10,10 +12,10 @@ type TableProps = {
   countsPosts: number[],
 };
 
-export const Table = (props: TableProps) => {
-  const isLoading = useUserStore((state) => state.isLoading);
+const skeletonsArray: number[] = Array.from({ length: COUNT_USERS_ON_PAGE }, (_, i) => i + 1);
 
-  const skeletonsArray: number[] = Array.from({ length: COUNT_USERS_ON_PAGE }, (_, i) => i + 1);
+export const Table = ({ users, countsPosts }: TableProps) => {
+  const isLoading = useUserStore(selectIsLoading);
 
   return (
     <table className="layout-container__table table-user">
@@ -28,12 +30,12 @@ export const Table = (props: TableProps) => {
       </thead>
       <tbody>
         {!isLoading ?
-          props.users.map((user, index) =>
+          users.map((user, index) =>
             <TableItem
               key={user.id}
               user={user}
               numberUser={index}
-              countPosts={props.countsPosts[index]}
+              countPosts={countsPosts[index]}
             />
           ) :
           skeletonsArray.map((skeleton) =>

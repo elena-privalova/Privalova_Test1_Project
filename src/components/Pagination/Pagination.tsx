@@ -3,14 +3,15 @@ import classNames from 'classnames';
 
 import { usePostsStore, useUserStore } from '../../store';
 import { COUNT_USERS_ON_PAGE } from '../../constants';
+import { selectActivePage, setActivePage } from '../../store/posts/selectors';
+import { selectCountUsers } from '../../store/users/selectors';
 
 import './pagination.css';
 
 export const Pagination = () => {
-  const countUsers = useUserStore((state) => state.countUsers);
+  const countUsers = useUserStore(selectCountUsers);
 
-  const activePage = usePostsStore((state) => state.activePage);
-  const setActivePage = usePostsStore((state) => state.setActivePage);
+  const activePage = usePostsStore(selectActivePage);
 
   const handleChangePageNmber = (event: MouseEvent<HTMLDivElement>) => {
     if (event.target instanceof HTMLButtonElement) {
