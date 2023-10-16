@@ -2,13 +2,14 @@ import { create } from 'zustand';
 import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 
-import { usePostsStore } from '../posts/postsStore';
 import api from '../adapter';
+import { usePostsStore } from '../posts/postsStore';
 import { COUNT_USERS_ON_PAGE } from '../../constants';
+import { getIntervalIds } from '../../utils/getIntervalIds';
 
 import { UserData } from './types';
 
-type UserState = {
+export type UserState = {
   isLoading: boolean,
   startUser: number,
   currentUser: number,
@@ -17,12 +18,14 @@ type UserState = {
   countsUsersPosts: number[],
   usersError: string,
   countsPostsError: string,
+  selectedUsersIds: number[],
   error: string,
   getCountUsers: () => Promise<void>,
-  getSliceUsers: () => Promise<void>,
+  getSliceUsers: (isCheckNewUsers?: boolean) => Promise<void>,
   getCountsUsersPosts: (users: UserData[]) => Promise<void>,
   setCurrentUser: (userId: number) => void;
   setStartUser: (userId: number) => void,
+  setSelectedUsersIds: (ids: number[] | string) => void,
 }
 
 export const useUserStore = create<UserState>((set, get) => ({
@@ -34,6 +37,7 @@ export const useUserStore = create<UserState>((set, get) => ({
   countsUsersPosts: [],
   usersError: '',
   countsPostsError: '',
+  selectedUsersIds: [],
   error: '',
   getCountUsers: async () => {
     set({ isLoading: true });
@@ -50,10 +54,24 @@ export const useUserStore = create<UserState>((set, get) => ({
       set({ error: 'Failed to get users' });
     }
   },
-  getSliceUsers: async () => {
+  getSliceUsers: async (isCheckNewUsers?: boolean) => {
     set({ isLoading: true });
 
     try {
+      if (isCheckNewUsers) {
+        const finalPage = usePostsStore.getState().finalPage;
+
+        const params = new URLSearchParams({
+          limit: `${COUNT_USERS_ON_PAGE}`,
+          skip: `${(finalPage - 1) * COUNT_USERS_ON_PAGE}`
+        });
+
+        const { data } = await api
+          .get(`users?${params.toString()}`);
+
+        set({ countUsers: get().countUsers + data.users.length });
+      }
+
       const activePage = usePostsStore.getState().activePage;
 
       const params = new URLSearchParams({
@@ -105,6 +123,29 @@ export const useUserStore = create<UserState>((set, get) => ({
   },
   setStartUser: (userId: number) => {
     set({ startUser: userId });
+  },
+  setSelectedUsersIds: (ids: number[] | string) => {
+    if (Array.isArray(ids)) {
+      const selectedIds = getIntervalIds(ids, get().users);
+
+      set({ selectedUsersIds: selectedIds });
+      return;
+    }
+
+    const arrayIds = ids.split(',');
+
+    const selectedIds = arrayIds.reduce((acc: number[], id) => {
+      if (id.includes('-')) {
+        const currentInterval = id.split('-').map((elem) => Number(elem));
+        const currentIds = getIntervalIds(currentInterval, get().users);
+
+        return [...acc, ...currentIds];
+      }
+
+      return [...acc, Number(id)];
+    }, []);
+
+    set({ selectedUsersIds:  selectedIds });
   }
 }));
 

@@ -1,19 +1,20 @@
-import { PostData } from '../../store/posts/types';
-
 import './postItem.css';
 
-type PostItemProps = { postItem: PostData };
+type PostItemProps = {
+  title: string,
+  body: string
+};
 
-export const PostItem = (props: PostItemProps) => {
+export const PostItem = ({ title, body }: PostItemProps) => {
   return (
     <div className="post__item">
       <div>
         <span>Title:</span>
-        <p>{props.postItem.title}</p>
+        <p>{title}</p>
       </div>
       <div>
         <span>Text:</span>
-        <p>{props.postItem.body}</p>
+        <p>{body}</p>
       </div>
     </div>
   );

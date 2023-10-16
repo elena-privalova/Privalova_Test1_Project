@@ -1,5 +1,9 @@
+import { selectIsLoading } from '../../store/users/selectors';
+import { COUNT_USERS_ON_PAGE } from '../../constants';
 import { UserData } from '../../store/users/types';
-import { TableItem } from '../TableItem/TableItem';
+import { useUserStore } from '../../store';
+import { TableItem } from '../TableItem';
+import { Skeleton } from '../Skeleton';
 
 import './table.css';
 
@@ -8,7 +12,11 @@ type TableProps = {
   countsPosts: number[],
 };
 
-export const Table = (props: TableProps) => {
+const SKELETONS_ARRAY: number[] = Array.from({ length: COUNT_USERS_ON_PAGE }, (_, i) => i + 1);
+
+export const Table = ({ users, countsPosts }: TableProps) => {
+  const isLoading = useUserStore(selectIsLoading);
+
   return (
     <table className="layout-container__table table-user">
       <thead>
@@ -21,14 +29,21 @@ export const Table = (props: TableProps) => {
         </tr>
       </thead>
       <tbody>
-        {props.users.map((user, index) =>
-          <TableItem
-            key={user.id}
-            user={user}
-            numberUser={index}
-            countPosts={props.countsPosts[index]}
-          />
-        )}
+        {!isLoading ?
+          users.map((user, index) =>
+            <TableItem
+              key={user.id}
+              user={user}
+              numberUser={index}
+              countPosts={countsPosts[index]}
+            />
+          ) :
+          SKELETONS_ARRAY.map((skeleton) =>
+            <tr key={skeleton}>
+              <td key={skeleton} colSpan={5}><Skeleton /></td>
+            </tr>
+          )
+        }
       </tbody>
     </table>
   );

@@ -1,5 +1,3 @@
-import { useUserStore } from './users/usersStore';
-import { usePostsStore } from './posts/postsStore';
-
-export { useUserStore, usePostsStore };
+export * from './users/usersStore';
+export * from './posts/postsStore';
 

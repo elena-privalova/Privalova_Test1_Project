@@ -1,40 +1,45 @@
-import { useEffect, type FC, useState } from 'react';
+import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { PostItem } from '../PostItem/PostItem';
+import {
+  getUserPosts,
+  selectActivePage,
+  selectUserPosts
+} from '../../store/posts/selectors';
+import { selectIsLoading } from '../../store/users/selectors';
 import { useUserStore, usePostsStore } from '../../store';
-import { COUNT_USERS_ON_PAGE } from '../../constants';
+import { PostItem } from '../PostItem';
 
 import './postsList.css';
 
-export const PostsList: FC = () => {
+export const PostsList = () => {
   const [searchParams] = useSearchParams();
   const userId = searchParams.get('ids');
+  const page = searchParams.get('page');
 
-  const isLoading = useUserStore((state) => state.isLoading);
-  const userPosts = usePostsStore((state) => state.userPosts);
+  const isLoading = useUserStore(selectIsLoading);
+  const userPosts = usePostsStore(selectUserPosts);
 
-  const activePage = usePostsStore((state) => state.activePage);
-  const getUserPosts = usePostsStore((state) => state.getUserPosts);
-
-  const [isSelectUserOnCurrentPage, setIsSelectUserOnCurrentPage] = useState(false);
+  const activePage = usePostsStore(selectActivePage);
 
   useEffect(() => {
-    if (userId != undefined) {
-      const selectedByShift = userId.includes('-') && userId.length === 3;
-      getUserPosts(userId, selectedByShift);
-      const ids = userId.split(/,|-/g);
-      const isMoreStartInterval = Number(ids[0]) > (activePage - 1) * COUNT_USERS_ON_PAGE;
-      const isLessEndInterval = Number(ids[0]) <= (activePage) * COUNT_USERS_ON_PAGE;
-      setIsSelectUserOnCurrentPage(isMoreStartInterval && isLessEndInterval);
+    if (userId == undefined || activePage !== Number(page)) return;
+
+    if (userId.length === 1) {
+      getUserPosts(userId);
+      return;
     }
+
+    getUserPosts();
   }, [userId, isLoading]);
+
+  const isPagesMatch = activePage === Number(page);
 
   return (
     <div className="layout-container__posts post">
-      {!isLoading && isSelectUserOnCurrentPage && (
+      {!isLoading && isPagesMatch && (
         userPosts.map((post) =>
-          <PostItem key={post.id} postItem={post} />
+          <PostItem key={post.id} title={post.title} body={post.body} />
         )
       )}
     </div>
