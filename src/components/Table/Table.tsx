@@ -12,7 +12,7 @@ type TableProps = {
   countsPosts: number[],
 };
 
-const skeletonsArray: number[] = Array.from({ length: COUNT_USERS_ON_PAGE }, (_, i) => i + 1);
+const SKELETONS_ARRAY: number[] = Array.from({ length: COUNT_USERS_ON_PAGE }, (_, i) => i + 1);
 
 export const Table = ({ users, countsPosts }: TableProps) => {
   const isLoading = useUserStore(selectIsLoading);
@@ -38,7 +38,7 @@ export const Table = ({ users, countsPosts }: TableProps) => {
               countPosts={countsPosts[index]}
             />
           ) :
-          skeletonsArray.map((skeleton) =>
+          SKELETONS_ARRAY.map((skeleton) =>
             <tr key={skeleton}>
               <td key={skeleton} colSpan={5}><Skeleton /></td>
             </tr>

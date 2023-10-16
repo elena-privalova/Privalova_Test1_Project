@@ -23,13 +23,14 @@ export const PostsList = () => {
   const activePage = usePostsStore(selectActivePage);
 
   useEffect(() => {
-    if (userId != undefined && activePage === Number(page)) {
-      if (userId.length === 1) {
-        getUserPosts(userId);
-        return;
-      }
-      getUserPosts();
+    if (userId == undefined || activePage !== Number(page)) return;
+
+    if (userId.length === 1) {
+      getUserPosts(userId);
+      return;
     }
+
+    getUserPosts();
   }, [userId, isLoading]);
 
   const isPagesMatch = activePage === Number(page);
@@ -38,7 +39,7 @@ export const PostsList = () => {
     <div className="layout-container__posts post">
       {!isLoading && isPagesMatch && (
         userPosts.map((post) =>
-          <PostItem key={post.id} postItem={post} />
+          <PostItem key={post.id} title={post.title} body={post.body} />
         )
       )}
     </div>
