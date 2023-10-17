@@ -27,7 +27,7 @@ export const PostsList = () => {
       return;
     }
 
-    if (!userId.includes('-') && !userId.includes(',')) {
+    if (userId.match(/-|,/g) == undefined) {
       getUserPosts(userId);
       return;
     }

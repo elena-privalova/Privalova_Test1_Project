@@ -2,7 +2,12 @@ import { MouseEvent, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import { usePostsStore, useUserStore } from '../../store';
-import { COUNT_USERS_ON_PAGE, MAX_COUNT_PAGES } from '../../constants';
+import {
+  COUNT_USERS_ON_PAGE,
+  INTERVAL_BETWEEN_FIRST_AND_LAST_PAGES,
+  MAX_COUNT_PAGES,
+  START_PAGE_NUMBER
+} from '../../constants';
 import {
   selectActivePage,
   selectFinalPage,
@@ -22,11 +27,11 @@ export const Pagination = () => {
     .from({ length: countUsers / COUNT_USERS_ON_PAGE }, (_, i) => i + 1));
 
   useEffect(() => {
-    if (pagesArray.length > 3 && activePage === 1) {
+    if (pagesArray.length > MAX_COUNT_PAGES && activePage === START_PAGE_NUMBER) {
       setPagesArray(pagesArray.slice(0, MAX_COUNT_PAGES));
     }
 
-    if (finalPage - activePage >= 2 && finalPage > 3 && activePage > 1) {
+    if (finalPage - activePage >= INTERVAL_BETWEEN_FIRST_AND_LAST_PAGES && finalPage > MAX_COUNT_PAGES && activePage > START_PAGE_NUMBER) {
       const lastVisiblePage = pagesArray.length - finalPage + activePage + 1;
       setPagesArray(pagesArray.slice(0, lastVisiblePage));
     }
