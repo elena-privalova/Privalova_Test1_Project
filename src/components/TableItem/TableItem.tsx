@@ -82,7 +82,7 @@ export const TableItem = ({ user, numberUser, countPosts }: TableItemProps) => {
 
   const handleMouseDown = (event: MouseEvent<HTMLTableRowElement>) => {
     if (!event.shiftKey) setStartUser (user.id);
-    if (event.metaKey && !isReadyToAddInInterval) {
+    if (event.metaKey && !isReadyToAddInInterval && !isSelectByCmd) {
       setUsersPostsByCmd(user.id);
       setIsSelectByCmd(true);
       return;

@@ -37,7 +37,7 @@ export const Main = () => {
 
   useEffect(() => {
     getSliceUsers();
-    if (activePage === finalPage - 1) {
+    if (activePage === finalPage) {
       setFinalPage(finalPage + 1);
       getSliceUsers(true);
     }

@@ -23,9 +23,11 @@ export const PostsList = () => {
   const activePage = usePostsStore(selectActivePage);
 
   useEffect(() => {
-    if (userId == undefined || activePage !== Number(page)) return;
+    if (userId == undefined || activePage !== Number(page)) {
+      return;
+    }
 
-    if (userId.length === 1) {
+    if (!userId.includes('-') && !userId.includes(',')) {
       getUserPosts(userId);
       return;
     }

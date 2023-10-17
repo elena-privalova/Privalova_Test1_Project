@@ -2,8 +2,14 @@
 
 .layout-container__pagination {
   display: flex;
+  align-items: end;
   width: auto;
   gap: 10px;
+}
+
+.layout-container__pagination span {
+  font-size: 18px;
+  letter-spacing: 1px;
 }
 
 .layout-container__pagination button {
