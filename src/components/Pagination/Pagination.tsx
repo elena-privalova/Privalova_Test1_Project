@@ -2,12 +2,7 @@ import { MouseEvent, useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import { usePostsStore, useUserStore } from '../../store';
-import {
-  COUNT_USERS_ON_PAGE,
-  INTERVAL_BETWEEN_FIRST_AND_LAST_PAGES,
-  MAX_COUNT_PAGES,
-  START_PAGE_NUMBER
-} from '../../constants';
+import { COUNT_USERS_ON_PAGE } from '../../constants';
 import {
   selectActivePage,
   selectFinalPage,
@@ -16,6 +11,10 @@ import {
 import { selectCountUsers } from '../../store/users/selectors';
 
 import './pagination.css';
+
+const START_PAGE_NUMBER = 1;
+const INTERVAL_BETWEEN_FIRST_AND_LAST_PAGES = 2;
+const MAX_COUNT_PAGES = 3;
 
 export const Pagination = () => {
   const countUsers = useUserStore(selectCountUsers);
