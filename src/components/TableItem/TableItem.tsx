@@ -17,14 +17,19 @@ import {
   setStartUser
 } from '../../store/users/selectors';
 import {
-  selectActivePage,
   selectIsUsersPostsLoading,
   selectUserPostsByCmd,
   setUsersPostsByCmd
 } from '../../store/posts/selectors';
-import { UserState, usePostsStore, useUserStore } from '../../store';
+import {
+  UserState,
+  usePaginationStore,
+  usePostsStore,
+  useUserStore
+} from '../../store';
 import { groupIds } from '../../utils/groupIds';
 import { UserData } from '../../store/users/types';
+import { selectActivePage } from '../../store/pagination/selectors';
 
 import './tableItem.css';
 
@@ -40,7 +45,7 @@ export const usersIdsSelector = createSelector(
 );
 
 export const TableItem = ({ user, numberUser, countPosts }: TableItemProps) => {
-  const activePage = usePostsStore(selectActivePage);
+  const activePage = usePaginationStore(selectActivePage);
   const userPostsByCmd = usePostsStore(selectUserPostsByCmd);
   const isUsersPostsLoading = usePostsStore(selectIsUsersPostsLoading);
 

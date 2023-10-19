@@ -8,34 +8,22 @@ import { useUserStore } from '../users/usersStore';
 import { PostData } from './types';
 
 export type PostsState = {
-  activePage: number,
-  finalPage: number,
   isUsersPostsLoading: boolean,
   userPosts: PostData[],
   userPostsByCmd: number[],
   userPostsError: string,
   error: string,
-  setActivePage: (numberPage: number) => void;
-  setFinalPage: (numberPage: number) => void;
   getUserPosts: (id?: string) => Promise<void>,
   setUsersPostsByCmd: (id: number) => void
 }
 
 export const usePostsStore = create<PostsState>((set, get) => ({
-  activePage: 1,
-  finalPage: 3,
   isUsersPostsLoading: false,
   userPosts: [],
   userPostsByCmd: [],
   userPostsError: '',
   error: '',
   countsUsersPosts: [],
-  setActivePage: (numberPage: number) => {
-    set({ activePage: numberPage });
-  },
-  setFinalPage: (numberPage: number) => {
-    set({ finalPage: numberPage });
-  },
   getUserPosts: async (id?: string) => {
     const selectedUsersIds = useUserStore.getState().selectedUsersIds;
 

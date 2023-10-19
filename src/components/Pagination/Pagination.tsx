@@ -1,52 +1,79 @@
-import { MouseEvent, useEffect, useState } from 'react';
+import { MouseEvent, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import classNames from 'classnames';
 
-import { usePostsStore, useUserStore } from '../../store';
-import { COUNT_USERS_ON_PAGE } from '../../constants';
 import {
+  selectEndPage,
+  getCountPages,
   selectActivePage,
+  selectCountPages,
   selectFinalPage,
-  setActivePage
-} from '../../store/posts/selectors';
-import { selectCountUsers } from '../../store/users/selectors';
+  setActivePage,
+  setFinalPage
+} from '../../store/pagination/selectors';
+import {
+  selectIsHasMoreUsers
+} from '../../store/users/selectors';
+import {
+  usePaginationStore,
+  useUserStore
+} from '../../store';
 
 import './pagination.css';
 
 const START_PAGE_NUMBER = 1;
-const INTERVAL_BETWEEN_FIRST_AND_LAST_PAGES = 2;
+const PAGES_INTERVAL = 2;
 const MAX_COUNT_PAGES = 3;
 
 export const Pagination = () => {
-  const countUsers = useUserStore(selectCountUsers);
+  const [currentPage] = useSearchParams();
 
-  const activePage = usePostsStore(selectActivePage);
-  const finalPage = usePostsStore(selectFinalPage);
+  const isHasMoreUsers = useUserStore(selectIsHasMoreUsers);
 
-  const [pagesArray, setPagesArray] = useState(Array
-    .from({ length: countUsers / COUNT_USERS_ON_PAGE }, (_, i) => i + 1));
+  const finalPage = usePaginationStore(selectFinalPage);
+  const endPage = usePaginationStore(selectEndPage);
 
   useEffect(() => {
-    if (pagesArray.length > MAX_COUNT_PAGES && activePage === START_PAGE_NUMBER) {
-      setPagesArray(pagesArray.slice(0, MAX_COUNT_PAGES));
+    getCountPages();
+    if (currentPage.get('page') != undefined) {
+      setActivePage(Number(currentPage.get('page')));
     }
+  }, []);
 
-    if (finalPage - activePage >= INTERVAL_BETWEEN_FIRST_AND_LAST_PAGES && finalPage > MAX_COUNT_PAGES && activePage > START_PAGE_NUMBER) {
-      const lastVisiblePage = pagesArray.length - finalPage + activePage + 1;
-      setPagesArray(pagesArray.slice(0, lastVisiblePage));
-    }
-  }, [activePage]);
+  const countPages = usePaginationStore(selectCountPages);
+
+  const activePage = usePaginationStore(selectActivePage);
 
   const handleChangePageNmber = (event: MouseEvent<HTMLDivElement>) => {
     if (event.target instanceof HTMLButtonElement) {
+      if (Number(event.target.innerText) !== endPage) setFinalPage(Number(event.target.innerText) + 1);
       setActivePage(Number(event.target.innerText));
     }
   };
 
-  const slicePagesArray = pagesArray.slice(-MAX_COUNT_PAGES);
+  const pagesArray: number[] = Array
+    .from({ length: countPages }, (_, i) => i + 1);
+
+  const slicePagesArray = activePage > START_PAGE_NUMBER ?
+    activePage === finalPage ?
+      pagesArray.slice(-MAX_COUNT_PAGES) :
+      pagesArray.slice(activePage - PAGES_INTERVAL, activePage + START_PAGE_NUMBER) :
+    pagesArray.slice(activePage - START_PAGE_NUMBER, activePage + PAGES_INTERVAL);
+
+  const isHasPreviousButton = activePage > 2;
+  const isHasNextButton = activePage > 2 && isHasMoreUsers;
+
+  const paginationClass = classNames({
+    'layout-container__pagination pagination': true,
+    'pagination_previous-button': isHasPreviousButton,
+    'pagination_next-button': isHasNextButton
+  });
 
   return (
-    <div className="layout-container__pagination pagination" onClick={handleChangePageNmber}>
-      {pagesArray.length > 3 && <span>...</span>}
+    <div
+      className={paginationClass}
+      onClick={handleChangePageNmber}
+    >
       {slicePagesArray.map((page) =>
         <button
           key={page}
