@@ -43,8 +43,6 @@ export const useUserStore = create<UserState>((set, get) => ({
   getIsHasMoreUsers: async () => {
     try {
       const finalPage = usePaginationStore.getState().finalPage;
-      const countPages = usePaginationStore.getState().countPages;
-      const endPage = usePaginationStore.getState().endPage;
 
       const params = new URLSearchParams({
         limit: `${COUNT_USERS_ON_PAGE}`,
@@ -61,11 +59,6 @@ export const useUserStore = create<UserState>((set, get) => ({
       }
 
       set({ isHasMoreUsers: true });
-
-      if (finalPage < countPages && finalPage > 3) {
-        if (endPage - finalPage > 1) getCountPages(-data.users.length);
-        return;
-      }
 
       getCountPages(data.users.length);
     } catch (e) {
@@ -94,7 +87,7 @@ export const useUserStore = create<UserState>((set, get) => ({
         error: ''
       });
 
-      get().getIsHasMoreUsers();
+      if (activePage !== 2) get().getIsHasMoreUsers();
     } catch (e) {
       if (e instanceof AxiosError) {
         set({ usersError: e.message });

@@ -8,6 +8,7 @@ export type PaginationState = {
   finalPage: number,
   endPage: number,
   countPages: number,
+  pagesArray: number[],
   error: string,
   setActivePage: (numberPage: number) =>  void,
   setFinalPage: (numberPage: number) =>  void,
@@ -20,6 +21,7 @@ export const usePaginationStore = create<PaginationState>((set, get) => ({
   finalPage: 3,
   endPage: 0,
   countPages: 0,
+  pagesArray: [],
   error: '',
   setActivePage: (numberPage: number) => {
     set({ activePage: numberPage });
@@ -39,7 +41,9 @@ export const usePaginationStore = create<PaginationState>((set, get) => ({
         return;
       }
 
-      if (get().countPages - get().finalPage < 1) set({ countPages: get().countPages + countNewPages / COUNT_USERS_ON_PAGE });
+      if (Math.abs(get().countPages - get().finalPage) < 1) {
+        set({ countPages: get().countPages + countNewPages / COUNT_USERS_ON_PAGE });
+      }
     } catch(e) {
       set({ error: 'Failed to get users' });
     }
