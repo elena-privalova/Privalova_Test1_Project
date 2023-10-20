@@ -9,6 +9,7 @@
 
 .layout-container__table td,th {
   padding: 5px;
+  height: 30px;
   border: 1px solid grey;
 }
 

@@ -2,12 +2,10 @@ import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import {
-  getUserPosts,
-  selectActivePage,
-  selectUserPosts
-} from '../../store/posts/selectors';
-import { selectIsLoading } from '../../store/users/selectors';
-import { useUserStore, usePostsStore } from '../../store';
+  usePaginatonStore,
+  usePostsStore,
+  useUserStore
+} from '../../store';
 import { PostItem } from '../PostItem';
 
 import './postsList.css';
@@ -17,10 +15,12 @@ export const PostsList = () => {
   const userId = searchParams.get('ids');
   const page = searchParams.get('page');
 
-  const isLoading = useUserStore(selectIsLoading);
-  const userPosts = usePostsStore(selectUserPosts);
+  const isLoading = useUserStore.use.isLoading();
+  const getUserPosts = usePostsStore.use.getUserPosts();
 
-  const activePage = usePostsStore(selectActivePage);
+  const userPosts = usePostsStore.use.userPosts();
+
+  const activePage = usePaginatonStore.use.activePage();
 
   useEffect(() => {
     if (userId == undefined || activePage !== Number(page)) {

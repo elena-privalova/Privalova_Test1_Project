@@ -1,21 +1,25 @@
-import { selectIsLoading } from '../../store/users/selectors';
+import { useEffect } from 'react';
+
+import { usePaginatonStore, useUserStore } from '../../store';
 import { COUNT_USERS_ON_PAGE } from '../../constants';
-import { UserData } from '../../store/users/types';
-import { useUserStore } from '../../store';
 import { TableItem } from '../TableItem';
 import { Skeleton } from '../Skeleton';
 
 import './table.css';
 
-type TableProps = {
-  users: UserData[],
-  countsPosts: number[],
-};
-
 const SKELETONS_ARRAY: number[] = Array.from({ length: COUNT_USERS_ON_PAGE }, (_, i) => i + 1);
 
-export const Table = ({ users, countsPosts }: TableProps) => {
-  const isLoading = useUserStore(selectIsLoading);
+export const Table = () => {
+  const isLoading = useUserStore.use.isLoading();
+  const users = useUserStore.use.users();
+  const countsUsersPosts = useUserStore.use.countsUsersPosts();
+  const getSliceUsers = useUserStore.use.getSliceUsers();
+
+  const activePage = usePaginatonStore.use.activePage();
+
+  useEffect(() => {
+    getSliceUsers();
+  }, [activePage]);
 
   return (
     <table className="layout-container__table table-user">
@@ -35,7 +39,7 @@ export const Table = ({ users, countsPosts }: TableProps) => {
               key={user.id}
               user={user}
               numberUser={index}
-              countPosts={countsPosts[index]}
+              countPosts={countsUsersPosts[index]}
             />
           ) :
           SKELETONS_ARRAY.map((skeleton) =>

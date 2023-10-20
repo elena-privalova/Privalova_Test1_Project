@@ -1,18 +1,19 @@
 @import '../../theme.css';
 
-.layout-container__pagination {
+.pagination {
   display: flex;
+  justify-self: center;
   align-items: end;
   width: auto;
   gap: 10px;
 }
 
-.layout-container__pagination span {
+.pagination span {
   font-size: 18px;
   letter-spacing: 1px;
 }
 
-.layout-container__pagination button {
+.pagination button {
   cursor: pointer;
   display: inline-block;
   width: 40px;
@@ -24,3 +25,10 @@
   background-color: var(--page-color);
 }
 
+.pagination_previous-button::before {
+  content: "...";
+}
+
+.pagination_next-button::after {
+  content: "...";
+}

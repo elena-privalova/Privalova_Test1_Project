@@ -8,23 +8,15 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import classNames from 'classnames';
 import { createSelector } from 'reselect';
 
-import {
-  selectCurrentUser,
-  selectStartUser,
-  selectUsersIds,
-  setCurrentUser,
-  setSelectedUsersIds,
-  setStartUser
-} from '../../store/users/selectors';
-import {
-  selectActivePage,
-  selectIsUsersPostsLoading,
-  selectUserPostsByCmd,
-  setUsersPostsByCmd
-} from '../../store/posts/selectors';
-import { UserState, usePostsStore, useUserStore } from '../../store';
 import { groupIds } from '../../utils/groupIds';
 import { UserData } from '../../store/users/types';
+import {
+  UserState,
+  usePaginatonStore,
+  usePostsStore,
+  useUserStore,
+  useUserStoreBase
+} from '../../store';
 
 import './tableItem.css';
 
@@ -34,21 +26,28 @@ type TableItemProps = {
   countPosts: number,
 };
 
-export const usersIdsSelector = createSelector(
+const selectUsersIds = (state: UserState) => state.selectedUsersIds;
+
+const usersIdsSelector = createSelector(
   [selectUsersIds, (_, id) => id],
-  (selectedUsersIds, id) => selectedUsersIds?.includes(id)
+  (selectUsersIds, id) => selectUsersIds?.includes(id)
 );
 
 export const TableItem = ({ user, numberUser, countPosts }: TableItemProps) => {
-  const activePage = usePostsStore(selectActivePage);
-  const userPostsByCmd = usePostsStore(selectUserPostsByCmd);
-  const isUsersPostsLoading = usePostsStore(selectIsUsersPostsLoading);
+  const activePage = usePaginatonStore.use.activePage();
 
-  const currentUser = useUserStore(selectCurrentUser);
-  const startUser = useUserStore(selectStartUser);
+  const isUsersPostsLoading = usePostsStore.use.isUsersPostsLoading();
+  const userPostsByCmd = usePostsStore.use.userPostsByCmd();
+  const setUsersPostsByCmd = usePostsStore.use.setUsersPostsByCmd();
+
+  const currentUser = useUserStore.use.currentUser();
+  const startUser = useUserStore.use.startUser();
+  const setCurrentUser = useUserStore.use.setCurrentUser();
+  const setStartUser = useUserStore.use.setStartUser();
+  const setSelectedUsersIds = useUserStore.use.setSelectedUsersIds();
 
   const memoizedUsersIdsSelector = useCallback((state: UserState) => usersIdsSelector(state, user.id), [user.id]);
-  const isSelectedUser = useUserStore(memoizedUsersIdsSelector);
+  const isSelectedUser = useUserStoreBase(memoizedUsersIdsSelector);
 
   const [searchParams] = useSearchParams();
   const userId = searchParams.get('ids');
