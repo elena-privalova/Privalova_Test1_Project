@@ -39,7 +39,7 @@ export const usePaginationStore = create<PaginationState>((set, get) => ({
         return;
       }
 
-      set({ countPages: get().countPages + countNewPages / COUNT_USERS_ON_PAGE });
+      if (get().countPages - get().finalPage < 1) set({ countPages: get().countPages + countNewPages / COUNT_USERS_ON_PAGE });
     } catch(e) {
       set({ error: 'Failed to get users' });
     }
