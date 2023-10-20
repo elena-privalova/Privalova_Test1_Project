@@ -2,17 +2,7 @@ import { MouseEvent, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import classNames from 'classnames';
 
-import {
-  selectEndPage,
-  getCountPages,
-  selectActivePage,
-  selectCountPages,
-  selectFinalPage,
-  setActivePage,
-  setFinalPage
-} from '../../store/pagination/selectors';
-import { usePaginationStore, useUserStore } from '../../store';
-import { selectIsHasMoreUsers } from '../../store/users/selectors';
+import { usePaginatonStore, useUserStore } from '../../store';
 import { PAGES_INTERVAL, getSlicePagesArray } from '../../utils/getSlicePagesArray';
 
 import './pagination.css';
@@ -20,15 +10,18 @@ import './pagination.css';
 export const Pagination = () => {
   const [currentPage] = useSearchParams();
 
-  const isHasMoreUsers = useUserStore(selectIsHasMoreUsers);
+  const isHasMoreUsers = useUserStore.use.isHasMoreUsers();
 
-  const activePage = usePaginationStore(selectActivePage);
-  const countPages = usePaginationStore(selectCountPages);
-  const endPage = usePaginationStore(selectEndPage);
-  const finalPage = usePaginationStore(selectFinalPage);
+  const activePage = usePaginatonStore.use.activePage();
+  const countPages = usePaginatonStore.use.countPages();
+  const endPage = usePaginatonStore.use.endPage();
+  const finalPage = usePaginatonStore.use.finalPage();
+  const setActivePage = usePaginatonStore.use.setActivePage();
+  const setFinalPage = usePaginatonStore.use.setFinalPage();
+  const setCountPages = usePaginatonStore.use.setCountPages();
 
   useEffect(() => {
-    getCountPages();
+    setCountPages();
     if (currentPage.get('page') != undefined) {
       setActivePage(Number(currentPage.get('page')));
     }

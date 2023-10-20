@@ -1,14 +1,7 @@
 import { useEffect } from 'react';
 
-import {
-  getSliceUsers,
-  selectCountsUsersPosts,
-  selectIsLoading,
-  selectUsers
-} from '../../store/users/selectors';
-import { selectActivePage } from '../../store/pagination/selectors';
+import { usePaginatonStore, useUserStore } from '../../store';
 import { COUNT_USERS_ON_PAGE } from '../../constants';
-import { usePaginationStore, useUserStore } from '../../store';
 import { TableItem } from '../TableItem';
 import { Skeleton } from '../Skeleton';
 
@@ -17,11 +10,12 @@ import './table.css';
 const SKELETONS_ARRAY: number[] = Array.from({ length: COUNT_USERS_ON_PAGE }, (_, i) => i + 1);
 
 export const Table = () => {
-  const isLoading = useUserStore(selectIsLoading);
-  const users = useUserStore(selectUsers);
-  const countsUsersPosts = useUserStore(selectCountsUsersPosts);
+  const isLoading = useUserStore.use.isLoading();
+  const users = useUserStore.use.users();
+  const countsUsersPosts = useUserStore.use.countsUsersPosts();
+  const getSliceUsers = useUserStore.use.getSliceUsers();
 
-  const activePage = usePaginationStore(selectActivePage);
+  const activePage = usePaginatonStore.use.activePage();
 
   useEffect(() => {
     getSliceUsers();

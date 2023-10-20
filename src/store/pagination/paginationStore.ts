@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 import api from '../adapter';
+import createSelectors from '../selectors';
 import { COUNT_USERS_ON_PAGE } from '../../constants';
 
 export type PaginationState = {
@@ -9,14 +10,17 @@ export type PaginationState = {
   endPage: number,
   countPages: number,
   pagesArray: number[],
-  error: string,
+  error: string
+};
+
+type PaginationActions = {
   setActivePage: (numberPage: number) =>  void,
   setFinalPage: (numberPage: number) =>  void,
   setEndPage: (numberPage: number) => void,
-  getCountPages: (countNewPages?: number) => Promise<void>,
+  setCountPages: (countNewPages?: number) => Promise<void>,
 };
 
-export const usePaginationStore = create<PaginationState>((set, get) => ({
+export const usePaginationStoreBase = create<PaginationState & PaginationActions>()((set, get) => ({
   activePage: 1,
   finalPage: 3,
   endPage: 0,
@@ -32,7 +36,7 @@ export const usePaginationStore = create<PaginationState>((set, get) => ({
   setEndPage: (numberPage: number) => {
     set({ endPage: numberPage });
   },
-  getCountPages: async (countNewPages?: number) => {
+  setCountPages: async (countNewPages?: number) => {
     try {
       if (countNewPages == undefined) {
         const { data } = await api.get('users');
@@ -49,4 +53,6 @@ export const usePaginationStore = create<PaginationState>((set, get) => ({
     }
   }
 }));
+
+export const usePaginatonStore = createSelectors(usePaginationStoreBase);
 

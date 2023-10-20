@@ -2,11 +2,11 @@ import { create } from 'zustand';
 import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 
-import { usePaginationStore } from '..';
+import { usePaginationStoreBase } from '..';
 import api from '../adapter';
+import createSelectors from '../selectors';
 import { COUNT_USERS_ON_PAGE } from '../../constants';
 import { getIntervalIds } from '../../utils/getIntervalIds';
-import { getCountPages, setEndPage } from '../pagination/selectors';
 
 import { UserData } from './types';
 
@@ -20,16 +20,19 @@ export type UserState = {
   usersError: string,
   countsPostsError: string,
   selectedUsersIds: number[],
-  error: string,
+  error: string
+}
+
+type UserActions = {
   getSliceUsers: () => Promise<void>,
   getIsHasMoreUsers: () => Promise<void>,
   getCountsUsersPosts: (users: UserData[]) => Promise<void>,
   setCurrentUser: (userId: number) => void;
   setStartUser: (userId: number) => void,
   setSelectedUsersIds: (ids: number[] | string) => void,
-}
+};
 
-export const useUserStore = create<UserState>((set, get) => ({
+export const useUserStoreBase = create<UserState & UserActions>((set, get) => ({
   isLoading: false,
   isHasMoreUsers: true,
   startUser: 0,
@@ -42,7 +45,9 @@ export const useUserStore = create<UserState>((set, get) => ({
   error: '',
   getIsHasMoreUsers: async () => {
     try {
-      const finalPage = usePaginationStore.getState().finalPage;
+      const finalPage = usePaginationStoreBase.getState().finalPage;
+      const setEndPage = usePaginationStoreBase.getState().setEndPage;
+      const setCountPages = usePaginationStoreBase.getState().setCountPages;
 
       const params = new URLSearchParams({
         limit: `${COUNT_USERS_ON_PAGE}`,
@@ -60,7 +65,7 @@ export const useUserStore = create<UserState>((set, get) => ({
 
       set({ isHasMoreUsers: true });
 
-      getCountPages(data.users.length);
+      setCountPages(data.users.length);
     } catch (e) {
       set({ error: 'Failed to get users' });
     }
@@ -69,7 +74,7 @@ export const useUserStore = create<UserState>((set, get) => ({
     set({ isLoading: true });
 
     try {
-      const activePage = usePaginationStore.getState().activePage;
+      const activePage = usePaginationStoreBase.getState().activePage;
 
       const params = new URLSearchParams({
         limit: `${COUNT_USERS_ON_PAGE}`,
@@ -147,4 +152,6 @@ export const useUserStore = create<UserState>((set, get) => ({
     set({ selectedUsersIds:  selectedIds });
   }
 }));
+
+export const useUserStore = createSelectors(useUserStoreBase);
 

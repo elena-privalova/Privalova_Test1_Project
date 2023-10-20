@@ -2,8 +2,9 @@ import { create } from 'zustand';
 import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 
+import { useUserStoreBase } from '..';
 import api from '../adapter';
-import { useUserStore } from '../users/usersStore';
+import createSelectors from '../selectors';
 
 import { PostData } from './types';
 
@@ -13,11 +14,14 @@ export type PostsState = {
   userPostsByCmd: number[],
   userPostsError: string,
   error: string,
-  getUserPosts: (id?: string) => Promise<void>,
-  setUsersPostsByCmd: (id: number) => void
 }
 
-export const usePostsStore = create<PostsState>((set, get) => ({
+type PostsActions = {
+  getUserPosts: (id?: string) => Promise<void>,
+  setUsersPostsByCmd: (id: number) => void
+};
+
+export const usePostsStoreBase = create<PostsState & PostsActions>((set, get) => ({
   isUsersPostsLoading: false,
   userPosts: [],
   userPostsByCmd: [],
@@ -25,7 +29,7 @@ export const usePostsStore = create<PostsState>((set, get) => ({
   error: '',
   countsUsersPosts: [],
   getUserPosts: async (id?: string) => {
-    const selectedUsersIds = useUserStore.getState().selectedUsersIds;
+    const selectedUsersIds = useUserStoreBase.getState().selectedUsersIds;
 
     set({ isUsersPostsLoading: true });
 
@@ -65,4 +69,6 @@ export const usePostsStore = create<PostsState>((set, get) => ({
     set({ userPostsByCmd: [...get().userPostsByCmd, Number(id)] });
   }
 }));
+
+export const usePostsStore = createSelectors(usePostsStoreBase);
 

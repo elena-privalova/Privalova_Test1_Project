@@ -1,13 +1,11 @@
 import { ToastContainer } from 'react-toastify';
 
-import { selectCountsPostsError, selectUsersError } from '../../store/users/selectors';
-import { selectUserPostsError } from '../../store/posts/selectors';
 import { usePostsStore, useUserStore } from '../../store';
 
 export const WarningToaster = () => {
-  const usersError = useUserStore(selectUsersError);
-  const countsPostsError = useUserStore(selectCountsPostsError);
-  const userPostsError = usePostsStore(selectUserPostsError);
+  const usersError = useUserStore.use.usersError();
+  const countsPostsError = useUserStore.use.countsPostsError();
+  const userPostsError = usePostsStore.use.userPostsError();
 
   const typeError = usersError || countsPostsError || userPostsError;
 

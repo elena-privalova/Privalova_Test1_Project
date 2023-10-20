@@ -6,10 +6,14 @@ export const getSlicePagesArray = (pagesArray: number[],
   activePage: number,
   finalPage: number,
   countPages: number): number[] => {
+  const startInterval: number[] = [activePage - START_PAGE_NUMBER, activePage + PAGES_INTERVAL];
+  const interval: number[] = activePage === finalPage ||
+    activePage === countPages ?
+    [activePage - MAX_COUNT_PAGES, activePage] :
+    [activePage - PAGES_INTERVAL, activePage + START_PAGE_NUMBER];
+
   return activePage > START_PAGE_NUMBER ?
-    activePage === finalPage || activePage === countPages ?
-      pagesArray.slice(-MAX_COUNT_PAGES) :
-      pagesArray.slice(activePage - PAGES_INTERVAL, activePage + START_PAGE_NUMBER) :
-    pagesArray.slice(activePage - START_PAGE_NUMBER, activePage + PAGES_INTERVAL);
+    pagesArray.slice(interval[0], interval[1]) :
+    pagesArray.slice(startInterval[0], startInterval[1]);
 };
 
