@@ -63,6 +63,7 @@ export const TableItem = memo(({
 
   const [searchParams] = useSearchParams();
   const userId = searchParams.get('ids');
+  const page = searchParams.get('page');
 
   const navigate = useNavigate();
 
@@ -105,7 +106,7 @@ export const TableItem = memo(({
   };
 
   useEffect(() => {
-    if (userNumber === 0) setCurrentUser(id);
+    if (Number(page) !== activePage && userNumber === 0) setCurrentUser(id);
 
     if (userId?.includes('-')) {
       const formattedUserId = userId.split('-');
