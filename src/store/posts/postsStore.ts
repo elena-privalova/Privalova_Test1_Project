@@ -10,6 +10,7 @@ import { PostData } from './types';
 
 export type PostsState = {
   isUsersPostsLoading: boolean,
+  isReadyToAddInterval: boolean,
   userPosts: PostData[],
   userPostsByCmd: number[],
   userPostsError: string,
@@ -18,11 +19,13 @@ export type PostsState = {
 
 type PostsActions = {
   getUserPosts: (id?: string) => Promise<void>,
-  setUsersPostsByCmd: (id: number) => void
+  setUsersPostsByCmd: (id: number) => void,
+  setIsReadyToAddInterval: (isReady: boolean) => void
 };
 
 export const usePostsStoreBase = create<PostsState & PostsActions>((set, get) => ({
   isUsersPostsLoading: false,
+  isReadyToAddInterval: false,
   userPosts: [],
   userPostsByCmd: [],
   userPostsError: '',
@@ -67,6 +70,9 @@ export const usePostsStoreBase = create<PostsState & PostsActions>((set, get) =>
       return;
     }
     set({ userPostsByCmd: [...get().userPostsByCmd, Number(id)] });
+  },
+  setIsReadyToAddInterval: (isReady: boolean) => {
+    set({ isReadyToAddInterval: isReady });
   }
 }));
 
