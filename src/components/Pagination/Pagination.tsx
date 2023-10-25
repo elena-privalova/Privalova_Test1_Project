@@ -1,5 +1,4 @@
 import { MouseEvent, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import classNames from 'classnames';
 
 import { usePaginatonStore, useUserStore } from '../../store';
@@ -8,8 +7,6 @@ import { PAGES_INTERVAL, getSlicePagesArray } from '../../utils/getSlicePagesArr
 import './pagination.css';
 
 export const Pagination = () => {
-  const [currentPage] = useSearchParams();
-
   const isHasMoreUsers = useUserStore.use.isHasMoreUsers();
 
   const activePage = usePaginatonStore.use.activePage();
@@ -22,9 +19,6 @@ export const Pagination = () => {
 
   useEffect(() => {
     setCountPages();
-    if (currentPage.get('page') != undefined) {
-      setActivePage(Number(currentPage.get('page')));
-    }
   }, []);
 
   const handleChangePageNmber = (event: MouseEvent<HTMLDivElement>) => {

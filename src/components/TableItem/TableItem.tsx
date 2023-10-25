@@ -2,14 +2,13 @@ import {
   useState,
   MouseEvent,
   useEffect,
-  useCallback
+  useCallback,
+  memo
 } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import classNames from 'classnames';
 import { createSelector } from 'reselect';
 
-import { groupIds } from '../../utils/groupIds';
-import { UserData } from '../../store/users/types';
 import {
   UserState,
   usePaginatonStore,
@@ -17,13 +16,20 @@ import {
   useUserStore,
   useUserStoreBase
 } from '../../store';
+import { groupIds } from '../../utils/groupIds';
 
 import './tableItem.css';
 
 type TableItemProps = {
-  user: UserData,
-  numberUser: number,
+  id: number,
+  firstName: string,
+  lastName: string,
+  username: string,
+  email: string,
+  companyName: string,
+  userNumber: number,
   countPosts: number,
+  handleKeyUp: (event: KeyboardEventInit) => void
 };
 
 const selectUsersIds = (state: UserState) => state.selectedUsersIds;
@@ -33,20 +39,31 @@ const usersIdsSelector = createSelector(
   (selectUsersIds, id) => selectUsersIds?.includes(id)
 );
 
-export const TableItem = ({ user, numberUser, countPosts }: TableItemProps) => {
+export const TableItem = memo(({
+  id,
+  firstName,
+  lastName,
+  username,
+  email,
+  companyName,
+  userNumber,
+  countPosts,
+  handleKeyUp
+}: TableItemProps) => {
   const activePage = usePaginatonStore.use.activePage();
 
   const isUsersPostsLoading = usePostsStore.use.isUsersPostsLoading();
-  const userPostsByCmd = usePostsStore.use.userPostsByCmd();
-  const setUsersPostsByCmd = usePostsStore.use.setUsersPostsByCmd();
+  const isReadyToAddInInterval = usePostsStore.use.isReadyToAddInterval();
+  const isStartSelect = usePostsStore.use.isStartSelect();
+  const setIsReadyToAddInInterval = usePostsStore.use.setIsReadyToAddInterval();
+  const setIsStartSelect = usePostsStore.use.setIsStartSelect();
 
   const currentUser = useUserStore.use.currentUser();
-  const startUser = useUserStore.use.startUser();
+  const selectedUsersIds = useUserStore.use.selectedUsersIds();
   const setCurrentUser = useUserStore.use.setCurrentUser();
-  const setStartUser = useUserStore.use.setStartUser();
   const setSelectedUsersIds = useUserStore.use.setSelectedUsersIds();
 
-  const memoizedUsersIdsSelector = useCallback((state: UserState) => usersIdsSelector(state, user.id), [user.id]);
+  const memoizedUsersIdsSelector = useCallback((state: UserState) => usersIdsSelector(state, id), [id]);
   const isSelectedUser = useUserStoreBase(memoizedUsersIdsSelector);
 
   const [searchParams] = useSearchParams();
@@ -58,128 +75,119 @@ export const TableItem = ({ user, numberUser, countPosts }: TableItemProps) => {
   const [isSelect, setIsSelect] = useState(false);
   const [isSelectInterval, setIsSelectInterval] = useState(false);
   const [isSelectByCmd, setIsSelectByCmd] = useState(false);
-  const [isReadyToAddInInterval, setIsReadyToAddInInterval] = useState(false);
 
-  const isCancelSelect = isSelect && user.id === currentUser;
-  const isNotSelectedBefore = !isSelect || user.id !== currentUser;
+  const isCancelSelect = isSelect && id === currentUser;
+  const isNotSelectedBefore = !isSelect || isSelectInterval;
 
-  const isOneUserHighlighted =
-    (isSelect && user.id === Number(userId)) &&
-    userId != undefined;
-
-  const isOneUserSelect = userId != undefined && !userId.includes('-');
-  const isSeveralUsersSelect = userId != undefined && userId.includes('-');
-  const isSeveralUsersSelectByCmd = userId != undefined && userId.includes(',');
-
-  useEffect(() => {
-    window.addEventListener('keyup', handleKeyup);
-  }, []);
-
-  const handleKeyup = (event: KeyboardEventInit) => {
-    if (event.key === 'Meta') setIsReadyToAddInInterval(true);
-  };
+  const isUsersSelected = userId != undefined &&
+    userId.includes('-') &&
+    Number(page) === activePage;
+  const isUsersSelectedByCmd = userId != undefined &&
+    userId.includes(',') &&
+    Number(page) === activePage;
 
   const handleMouseDown = (event: MouseEvent<HTMLTableRowElement>) => {
-    if (!event.shiftKey) setStartUser (user.id);
-    if (event.metaKey && !isReadyToAddInInterval && !isSelectByCmd) {
-      setUsersPostsByCmd(user.id);
-      setIsSelectByCmd(true);
+    if (event.shiftKey) {
       return;
     }
+
+    setCurrentUser(id);
+    if (event.metaKey) {
+      if (!isStartSelect) setIsStartSelect(true);
+      setIsSelectByCmd(true);
+    }
+
+    if (isSelectedUser) setSelectedUsersIds([id]);
+    else setSelectedUsersIds(id);
   };
 
   const handleMouseUp = (event: MouseEvent<HTMLTableRowElement>) => {
-    if (!event.metaKey) {
-      if (event.shiftKey && !userId?.includes('-') || user.id !== startUser) {
-        if (startUser > user.id) {
-          setSelectedUsersIds([user.id, startUser]);
-          navigate(`/posts?ids=${user.id}-${startUser}&page=${activePage}`);
-          return;
-        }
-        setSelectedUsersIds([startUser, user.id]);
-        navigate(`posts?ids=${startUser}-${user.id}&page=${activePage}`);
-        return;
-      }
-
-      setCurrentUser(user.id);
-      setIsSelect((prevState) => !prevState);
-
-      if (isCancelSelect) {
-        navigate('/', { replace: true });
-        return;
-      }
-      if (isNotSelectedBefore) {
-        navigate(`posts/?ids=${user.id}&page=${activePage}`);
-        return;
-      }
-
-      if (isSelectInterval) {
-        navigate('/', { replace: true });
-      }
-
+    if (event.metaKey) {
       return;
     }
 
-    if (isSelectByCmd) navigate('/', { replace: true });
-    setIsSelect(false);
-    setIsSelectInterval(false);
+    if (event.shiftKey && id !== currentUser || id !== currentUser) {
+      if (currentUser > id) {
+        setSelectedUsersIds([id, currentUser]);
+        navigate(`/posts?ids=${id}-${currentUser}&page=${activePage}`);
+        return;
+      }
+      setSelectedUsersIds([currentUser, id]);
+      navigate(`posts?ids=${currentUser}-${id}&page=${activePage}`);
+      return;
+    }
+
+    setIsSelect((prevState) => !prevState);
+
+    if (isCancelSelect) {
+      navigate('/', { replace: true });
+      return;
+    }
+
+    if (isNotSelectedBefore) {
+      navigate(`posts/?ids=${id}&page=${activePage}`);
+      return;
+    }
   };
 
   useEffect(() => {
     if (isReadyToAddInInterval) {
-      const formattedIds = groupIds(userPostsByCmd);
-      setSelectedUsersIds(formattedIds);
+      const formattedIds = groupIds(selectedUsersIds);
       navigate(`posts/?ids=${formattedIds}&page=${activePage}`);
-      window.removeEventListener('keyup', handleKeyup);
+      window.removeEventListener('keyup', handleKeyUp);
       setIsReadyToAddInInterval(false);
     }
 
-    if (isSeveralUsersSelectByCmd) {
-      if (Number(page) !== activePage) {
-        setUsersPostsByCmd(-1);
-        return;
-      }
-
+    if (isUsersSelectedByCmd) {
+      setIsStartSelect(false);
       setSelectedUsersIds(userId);
-      if (isSelectedUser) setIsSelectByCmd(true);
 
-      if (numberUser === 0) setStartUser(user.id);
-      return;
-    }
-
-    if (isOneUserSelect) {
-      setStartUser(Number(userId));
-      setUsersPostsByCmd(-1);
-      setSelectedUsersIds([]);
-      setIsSelect(true);
-      setIsSelectInterval(false);
-      setIsSelectByCmd(false);
-      return;
-    }
-
-    if (isSeveralUsersSelect) {
-      const ids = userId.split('-');
-      setSelectedUsersIds([Number(ids[0]), Number(ids[1])]);
       if (isSelectedUser) {
-        setIsSelectInterval(true);
+        setIsSelectByCmd(true);
         return;
       }
-      setIsSelectInterval(false);
+      return;
+    }
 
-      if (numberUser === 0) setStartUser(user.id);
-      setUsersPostsByCmd(-1);
+    if (isUsersSelected) {
+      const formattedUserId = userId.split('-');
+      setSelectedUsersIds([Number(formattedUserId[0]), Number(formattedUserId[1])]);
+
+      if (isSelectedUser) setIsSelectInterval(true);
+      else setIsSelectInterval(false);
+
+      setIsSelect(false);
       setIsSelectByCmd(false);
       return;
     }
 
-    if (numberUser === 0) setStartUser(user.id);
+    if (!isStartSelect) {
+      setSelectedUsersIds(-1);
+      if (userNumber === 0) setCurrentUser(id);
+    }
+
+    if (userId != undefined) {
+      if (id === Number(userId)) {
+        if (!isStartSelect) setSelectedUsersIds([id]);
+        setCurrentUser(id);
+        setIsSelect(true);
+      } else {
+        setIsSelect(false);
+      }
+
+      setIsSelectInterval(false);
+      if (!isStartSelect) setIsSelectByCmd(false);
+      return;
+    }
+
     setIsSelect(false);
     setIsSelectInterval(false);
-  }, [userId, isReadyToAddInInterval, isUsersPostsLoading]);
+    setIsSelectByCmd(false);
+  }, [userId, isUsersPostsLoading, isReadyToAddInInterval]);
 
   const tableRowClass = classNames({
     'table-user': true,
-    'table-user_select': isOneUserHighlighted || isSelectInterval || isSelectByCmd
+    'table-user_select': isSelect || isSelectInterval || isSelectByCmd
   });
 
   return (
@@ -188,12 +196,12 @@ export const TableItem = ({ user, numberUser, countPosts }: TableItemProps) => {
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
     >
-      <td>{`${user.firstName} ${user.lastName}`}</td>
-      <td>{user.username}</td>
-      <td>{user.email}</td>
-      <td>{user.company.name}</td>
+      <td>{`${firstName} ${lastName}`}</td>
+      <td>{username}</td>
+      <td>{email}</td>
+      <td>{companyName}</td>
       <td>{countPosts}</td>
     </tr>
   );
-};
+});
 

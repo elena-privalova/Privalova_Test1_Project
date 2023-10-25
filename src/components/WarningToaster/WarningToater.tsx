@@ -13,7 +13,7 @@ export const WarningToaster = () => {
     <>
       {typeError && (
         <ToastContainer
-          limit={1}
+          limit={10}
           position="top-right"
           autoClose={15000}
           hideProgressBar={false}

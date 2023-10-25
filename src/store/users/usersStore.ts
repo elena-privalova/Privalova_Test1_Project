@@ -13,7 +13,6 @@ import { UserData } from './types';
 export type UserState = {
   isLoading: boolean,
   isHasMoreUsers: boolean,
-  startUser: number,
   currentUser: number,
   users: UserData[],
   countsUsersPosts: number[],
@@ -27,15 +26,13 @@ type UserActions = {
   getSliceUsers: () => Promise<void>,
   getIsHasMoreUsers: () => Promise<void>,
   getCountsUsersPosts: (users: UserData[]) => Promise<void>,
-  setCurrentUser: (userId: number) => void;
-  setStartUser: (userId: number) => void,
-  setSelectedUsersIds: (ids: number[] | string) => void,
+  setCurrentUser: (userId: number) => void,
+  setSelectedUsersIds: (ids: number | number[] | string) => void
 };
 
 export const useUserStoreBase = create<UserState & UserActions>((set, get) => ({
   isLoading: false,
   isHasMoreUsers: true,
-  startUser: 0,
   currentUser: 0,
   users: [],
   countsUsersPosts: [],
@@ -125,14 +122,25 @@ export const useUserStoreBase = create<UserState & UserActions>((set, get) => ({
   setCurrentUser: (userId) => {
     set({ currentUser: userId });
   },
-  setStartUser: (userId: number) => {
-    set({ startUser: userId });
-  },
-  setSelectedUsersIds: (ids: number[] | string) => {
+  setSelectedUsersIds: (ids: number | number[] | string) => {
     if (Array.isArray(ids)) {
-      const selectedIds = getIntervalIds(ids, get().users);
+      if (ids.length === 2) {
+        const selectedIds = getIntervalIds(ids, get().users);
+        set({ selectedUsersIds: selectedIds });
+        return;
+      }
 
-      set({ selectedUsersIds: selectedIds });
+      set({ selectedUsersIds: ids });
+      return;
+    }
+
+    if (typeof ids === 'number') {
+      if (ids === -1) {
+        set({ selectedUsersIds: [] });
+        return;
+      }
+
+      set({ selectedUsersIds: [...get().selectedUsersIds, ids] });
       return;
     }
 
