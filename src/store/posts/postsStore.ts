@@ -11,23 +11,23 @@ import { PostData } from './types';
 export type PostsState = {
   isUsersPostsLoading: boolean,
   isReadyToAddInterval: boolean,
+  isStartSelect: boolean
   userPosts: PostData[],
-  userPostsByCmd: number[],
   userPostsError: string,
   error: string,
 }
 
 type PostsActions = {
   getUserPosts: (id?: string) => Promise<void>,
-  setUsersPostsByCmd: (id: number | number[]) => void,
-  setIsReadyToAddInterval: (isReady: boolean) => void
+  setIsReadyToAddInterval: (isReady: boolean) => void,
+  setIsStartSelect: (isSelect: boolean) => void,
 };
 
-export const usePostsStoreBase = create<PostsState & PostsActions>((set, get) => ({
+export const usePostsStoreBase = create<PostsState & PostsActions>((set) => ({
   isUsersPostsLoading: false,
   isReadyToAddInterval: false,
+  isStartSelect: false,
   userPosts: [],
-  userPostsByCmd: [],
   userPostsError: '',
   error: '',
   countsUsersPosts: [],
@@ -51,7 +51,6 @@ export const usePostsStoreBase = create<PostsState & PostsActions>((set, get) =>
       set({
         isUsersPostsLoading: false,
         userPosts: usersPosts.flat(),
-        userPostsByCmd: selectedUsersIds,
         userPostsError: '',
         error: ''
       });
@@ -65,23 +64,11 @@ export const usePostsStoreBase = create<PostsState & PostsActions>((set, get) =>
       set({ error: 'Failed to get posts' });
     }
   },
-  setUsersPostsByCmd: (id: number | number[]) => {
-    if (Array.isArray(id)) {
-      set({ userPostsByCmd: id });
-      return;
-    }
-
-    if (Number(id) === -1) {
-      const postsByCmd = get().userPostsByCmd;
-      postsByCmd.shift();
-      set({ userPostsByCmd: postsByCmd });
-      return;
-    }
-
-    set({ userPostsByCmd: [...get().userPostsByCmd, id] });
-  },
   setIsReadyToAddInterval: (isReady: boolean) => {
     set({ isReadyToAddInterval: isReady });
+  },
+  setIsStartSelect: (isSelect: boolean) => {
+    set({ isStartSelect: isSelect });
   }
 }));
 

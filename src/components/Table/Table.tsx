@@ -26,6 +26,8 @@ export const Table = memo(({ users, countsUsersPosts }: TableProps) => {
 
   useEffect(() => {
     window.addEventListener('keyup', handleKeyUp);
+
+    return () => window.removeEventListener('keyup', handleKeyUp);
   }, []);
 
   const memoizedHandleKeyUp = useCallback(() => handleKeyUp, [handleKeyUp]);

@@ -16,9 +16,9 @@ import {
   useUserStore,
   useUserStoreBase
 } from '../../store';
+import { groupIds } from '../../utils/groupIds';
 
 import './tableItem.css';
-import { groupIds } from '../../utils/groupIds';
 
 type TableItemProps = {
   id: number,
@@ -54,11 +54,12 @@ export const TableItem = memo(({
 
   const isUsersPostsLoading = usePostsStore.use.isUsersPostsLoading();
   const isReadyToAddInInterval = usePostsStore.use.isReadyToAddInterval();
-  const userPostsByCmd = usePostsStore.use.userPostsByCmd();
-  const setUserPostsByCmd = usePostsStore.use.setUsersPostsByCmd();
+  const isStartSelect = usePostsStore.use.isStartSelect();
   const setIsReadyToAddInInterval = usePostsStore.use.setIsReadyToAddInterval();
+  const setIsStartSelect = usePostsStore.use.setIsStartSelect();
 
   const currentUser = useUserStore.use.currentUser();
+  const selectedUsersIds = useUserStore.use.selectedUsersIds();
   const setCurrentUser = useUserStore.use.setCurrentUser();
   const setSelectedUsersIds = useUserStore.use.setSelectedUsersIds();
 
@@ -81,7 +82,13 @@ export const TableItem = memo(({
   const handleMouseDown = (event: MouseEvent<HTMLTableRowElement>) => {
     if (!event.shiftKey) {
       setCurrentUser(id);
-      setUserPostsByCmd(id);
+      if (event.metaKey) {
+        if (!isStartSelect) setIsStartSelect(true);
+        setIsSelectByCmd(true);
+      }
+
+      if (isSelectedUser) setSelectedUsersIds([id]);
+      else setSelectedUsersIds(id);
       return;
     }
   };
@@ -101,36 +108,38 @@ export const TableItem = memo(({
 
       setIsSelect((prevState) => !prevState);
 
-      if (isNotSelectedBefore) {
-        navigate(`posts/?ids=${id}&page=${activePage}`);
-        return;
-      }
-
       if (isCancelSelect) {
         navigate('/', { replace: true });
         return;
       }
-      return;
+
+      if (isNotSelectedBefore) {
+        navigate(`posts/?ids=${id}&page=${activePage}`);
+        return;
+      }
     }
   };
 
   useEffect(() => {
-    if (Number(page) !== activePage && userNumber === 0) setCurrentUser(id);
-
     if (isReadyToAddInInterval) {
-      const formattedIds = groupIds(userPostsByCmd);
-      console.log(formattedIds);
+      const formattedIds = groupIds(selectedUsersIds);
       navigate(`posts/?ids=${formattedIds}&page=${activePage}`);
       window.removeEventListener('keyup', handleKeyUp);
       setIsReadyToAddInInterval(false);
     }
 
-    if (userId?.includes(',')) {
+    if (userId?.includes(',') && Number(page) === activePage) {
+      setIsStartSelect(false);
       setSelectedUsersIds(userId);
+
+      if (isSelectedUser) {
+        setIsSelectByCmd(true);
+        return;
+      }
       return;
     }
 
-    if (userId?.includes('-')) {
+    if (userId?.includes('-') && Number(page) === activePage) {
       const formattedUserId = userId.split('-');
       setSelectedUsersIds([Number(formattedUserId[0]), Number(formattedUserId[1])]);
 
@@ -138,23 +147,30 @@ export const TableItem = memo(({
       else setIsSelectInterval(false);
 
       setIsSelect(false);
+      setIsSelectByCmd(false);
       return;
     }
 
     if (userId != undefined) {
       if (id === Number(userId)) {
-        if (userPostsByCmd.length > 0) setUserPostsByCmd([id]);
+        if (!isStartSelect) setSelectedUsersIds([id]);
+        setCurrentUser(id);
         setIsSelect(true);
-        setCurrentUser(Number(id));
       } else setIsSelect(false);
 
       setIsSelectInterval(false);
+      if (!isStartSelect) setIsSelectByCmd(false);
       return;
+    }
+
+    if (!isStartSelect) {
+      setSelectedUsersIds(-1);
+      if (userNumber === 0) setCurrentUser(id);
     }
 
     setIsSelect(false);
     setIsSelectInterval(false);
-    //setUserPostsByCmd(-1);
+    setIsSelectByCmd(false);
   }, [userId, isUsersPostsLoading, isReadyToAddInInterval]);
 
   const tableRowClass = classNames({
