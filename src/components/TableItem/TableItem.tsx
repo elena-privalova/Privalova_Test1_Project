@@ -18,6 +18,7 @@ import {
 } from '../../store';
 
 import './tableItem.css';
+import { groupIds } from '../../utils/groupIds';
 
 type TableItemProps = {
   id: number,
@@ -53,6 +54,9 @@ export const TableItem = memo(({
 
   const isUsersPostsLoading = usePostsStore.use.isUsersPostsLoading();
   const isReadyToAddInInterval = usePostsStore.use.isReadyToAddInterval();
+  const userPostsByCmd = usePostsStore.use.userPostsByCmd();
+  const setUserPostsByCmd = usePostsStore.use.setUsersPostsByCmd();
+  const setIsReadyToAddInInterval = usePostsStore.use.setIsReadyToAddInterval();
 
   const currentUser = useUserStore.use.currentUser();
   const setCurrentUser = useUserStore.use.setCurrentUser();
@@ -69,12 +73,17 @@ export const TableItem = memo(({
 
   const [isSelect, setIsSelect] = useState(false);
   const [isSelectInterval, setIsSelectInterval] = useState(false);
+  const [isSelectByCmd, setIsSelectByCmd] = useState(false);
 
   const isCancelSelect = isSelect && id === currentUser;
   const isNotSelectedBefore = !isSelect || isSelectInterval;
 
   const handleMouseDown = (event: MouseEvent<HTMLTableRowElement>) => {
-    if (!event.shiftKey) setCurrentUser(id);
+    if (!event.shiftKey) {
+      setCurrentUser(id);
+      setUserPostsByCmd(id);
+      return;
+    }
   };
 
   const handleMouseUp = (event: MouseEvent<HTMLTableRowElement>) => {
@@ -108,6 +117,19 @@ export const TableItem = memo(({
   useEffect(() => {
     if (Number(page) !== activePage && userNumber === 0) setCurrentUser(id);
 
+    if (isReadyToAddInInterval) {
+      const formattedIds = groupIds(userPostsByCmd);
+      console.log(formattedIds);
+      navigate(`posts/?ids=${formattedIds}&page=${activePage}`);
+      window.removeEventListener('keyup', handleKeyUp);
+      setIsReadyToAddInInterval(false);
+    }
+
+    if (userId?.includes(',')) {
+      setSelectedUsersIds(userId);
+      return;
+    }
+
     if (userId?.includes('-')) {
       const formattedUserId = userId.split('-');
       setSelectedUsersIds([Number(formattedUserId[0]), Number(formattedUserId[1])]);
@@ -121,6 +143,7 @@ export const TableItem = memo(({
 
     if (userId != undefined) {
       if (id === Number(userId)) {
+        if (userPostsByCmd.length > 0) setUserPostsByCmd([id]);
         setIsSelect(true);
         setCurrentUser(Number(id));
       } else setIsSelect(false);
@@ -131,11 +154,12 @@ export const TableItem = memo(({
 
     setIsSelect(false);
     setIsSelectInterval(false);
+    //setUserPostsByCmd(-1);
   }, [userId, isUsersPostsLoading, isReadyToAddInInterval]);
 
   const tableRowClass = classNames({
     'table-user': true,
-    'table-user_select': isSelect || isSelectInterval
+    'table-user_select': isSelect || isSelectInterval || isSelectByCmd
   });
 
   return (
