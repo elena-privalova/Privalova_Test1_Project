@@ -79,6 +79,13 @@ export const TableItem = memo(({
   const isCancelSelect = isSelect && id === currentUser;
   const isNotSelectedBefore = !isSelect || isSelectInterval;
 
+  const isUsersSelected = userId != undefined &&
+    userId?.includes('-') &&
+    Number(page) === activePage;
+  const isUsersSelectedByCmd = userId != undefined &&
+    userId?.includes(',') &&
+    Number(page) === activePage;
+
   const handleMouseDown = (event: MouseEvent<HTMLTableRowElement>) => {
     if (!event.shiftKey) {
       setCurrentUser(id);
@@ -128,7 +135,7 @@ export const TableItem = memo(({
       setIsReadyToAddInInterval(false);
     }
 
-    if (userId?.includes(',') && Number(page) === activePage) {
+    if (isUsersSelectedByCmd) {
       setIsStartSelect(false);
       setSelectedUsersIds(userId);
 
@@ -139,7 +146,7 @@ export const TableItem = memo(({
       return;
     }
 
-    if (userId?.includes('-') && Number(page) === activePage) {
+    if (isUsersSelected) {
       const formattedUserId = userId.split('-');
       setSelectedUsersIds([Number(formattedUserId[0]), Number(formattedUserId[1])]);
 
