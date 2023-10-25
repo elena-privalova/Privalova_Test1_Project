@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect } from 'react';
 
-import { usePostsStore, useUserStore } from '../../store';
+import { usePostsStoreBase, useUserStore } from '../../store';
 import { UserData } from '../../store/users/types';
 import { COUNT_USERS_ON_PAGE } from '../../constants';
 import { TableItem } from '../TableItem';
@@ -15,14 +15,14 @@ type TableProps = {
 
 const SKELETONS_ARRAY: number[] = Array.from({ length: COUNT_USERS_ON_PAGE }, (_, i) => i + 1);
 
+const setIsReadyToAddInInterval = usePostsStoreBase.getState().setIsReadyToAddInterval;
+
+const handleKeyUp = (event: KeyboardEventInit) => {
+  if (event.key === 'Meta') setIsReadyToAddInInterval(true);
+};
+
 export const Table = memo(({ users, countsUsersPosts }: TableProps) => {
   const isLoading = useUserStore.use.isLoading();
-
-  const setIsReadyToAddInInterval = usePostsStore.use.setIsReadyToAddInterval();
-
-  const handleKeyUp = (event: KeyboardEventInit) => {
-    if (event.key === 'Meta') setIsReadyToAddInInterval(true);
-  };
 
   useEffect(() => {
     window.addEventListener('keyup', handleKeyUp);

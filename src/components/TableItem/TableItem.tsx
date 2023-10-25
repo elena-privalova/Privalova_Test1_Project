@@ -80,50 +80,53 @@ export const TableItem = memo(({
   const isNotSelectedBefore = !isSelect || isSelectInterval;
 
   const isUsersSelected = userId != undefined &&
-    userId?.includes('-') &&
+    userId.includes('-') &&
     Number(page) === activePage;
   const isUsersSelectedByCmd = userId != undefined &&
-    userId?.includes(',') &&
+    userId.includes(',') &&
     Number(page) === activePage;
 
   const handleMouseDown = (event: MouseEvent<HTMLTableRowElement>) => {
-    if (!event.shiftKey) {
-      setCurrentUser(id);
-      if (event.metaKey) {
-        if (!isStartSelect) setIsStartSelect(true);
-        setIsSelectByCmd(true);
-      }
-
-      if (isSelectedUser) setSelectedUsersIds([id]);
-      else setSelectedUsersIds(id);
+    if (event.shiftKey) {
       return;
     }
+
+    setCurrentUser(id);
+    if (event.metaKey) {
+      if (!isStartSelect) setIsStartSelect(true);
+      setIsSelectByCmd(true);
+    }
+
+    if (isSelectedUser) setSelectedUsersIds([id]);
+    else setSelectedUsersIds(id);
   };
 
   const handleMouseUp = (event: MouseEvent<HTMLTableRowElement>) => {
-    if (!event.metaKey) {
-      if (event.shiftKey && id !== currentUser || id !== currentUser) {
-        if (currentUser > id) {
-          setSelectedUsersIds([id, currentUser]);
-          navigate(`/posts?ids=${id}-${currentUser}&page=${activePage}`);
-          return;
-        }
-        setSelectedUsersIds([currentUser, id]);
-        navigate(`posts?ids=${currentUser}-${id}&page=${activePage}`);
+    if (event.metaKey) {
+      return;
+    }
+
+    if (event.shiftKey && id !== currentUser || id !== currentUser) {
+      if (currentUser > id) {
+        setSelectedUsersIds([id, currentUser]);
+        navigate(`/posts?ids=${id}-${currentUser}&page=${activePage}`);
         return;
       }
+      setSelectedUsersIds([currentUser, id]);
+      navigate(`posts?ids=${currentUser}-${id}&page=${activePage}`);
+      return;
+    }
 
-      setIsSelect((prevState) => !prevState);
+    setIsSelect((prevState) => !prevState);
 
-      if (isCancelSelect) {
-        navigate('/', { replace: true });
-        return;
-      }
+    if (isCancelSelect) {
+      navigate('/', { replace: true });
+      return;
+    }
 
-      if (isNotSelectedBefore) {
-        navigate(`posts/?ids=${id}&page=${activePage}`);
-        return;
-      }
+    if (isNotSelectedBefore) {
+      navigate(`posts/?ids=${id}&page=${activePage}`);
+      return;
     }
   };
 
@@ -158,21 +161,23 @@ export const TableItem = memo(({
       return;
     }
 
+    if (!isStartSelect) {
+      setSelectedUsersIds(-1);
+      if (userNumber === 0) setCurrentUser(id);
+    }
+
     if (userId != undefined) {
       if (id === Number(userId)) {
         if (!isStartSelect) setSelectedUsersIds([id]);
         setCurrentUser(id);
         setIsSelect(true);
-      } else setIsSelect(false);
+      } else {
+        setIsSelect(false);
+      }
 
       setIsSelectInterval(false);
       if (!isStartSelect) setIsSelectByCmd(false);
       return;
-    }
-
-    if (!isStartSelect) {
-      setSelectedUsersIds(-1);
-      if (userNumber === 0) setCurrentUser(id);
     }
 
     setIsSelect(false);
