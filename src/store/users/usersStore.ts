@@ -13,8 +13,10 @@ import { UserData } from './types';
 export type UserState = {
   isLoading: boolean,
   isHasMoreUsers: boolean,
+  isSearch: boolean,
   currentUser: number,
   users: UserData[],
+  filteredUsers: UserData[],
   countsUsersPosts: number[],
   usersError: string,
   countsPostsError: string,
@@ -27,14 +29,17 @@ type UserActions = {
   getIsHasMoreUsers: () => Promise<void>,
   getCountsUsersPosts: (users: UserData[]) => Promise<void>,
   setCurrentUser: (userId: number) => void,
-  setSelectedUsersIds: (ids: number | number[] | string) => void
+  setSelectedUsersIds: (ids: number | number[] | string) => void,
+  getSearchUsers: (searchText: string) => Promise<void>,
 };
 
 export const useUserStoreBase = create<UserState & UserActions>((set, get) => ({
   isLoading: false,
   isHasMoreUsers: true,
+  isSearch: false,
   currentUser: 0,
   users: [],
+  filteredUsers: [],
   countsUsersPosts: [],
   usersError: '',
   countsPostsError: '',
@@ -73,6 +78,21 @@ export const useUserStoreBase = create<UserState & UserActions>((set, get) => ({
     try {
       const activePage = usePaginationStoreBase.getState().activePage;
 
+      if (get().isSearch) {
+        const slicedUsers = get().users
+          .slice((activePage - 1) * COUNT_USERS_ON_PAGE, activePage * COUNT_USERS_ON_PAGE);
+
+        await get().getCountsUsersPosts(slicedUsers);
+
+        set({
+          isLoading: false,
+          filteredUsers: slicedUsers,
+          usersError: '',
+          error: ''
+        });
+        return;
+      }
+
       const params = new URLSearchParams({
         limit: `${COUNT_USERS_ON_PAGE}`,
         skip: `${(activePage - 1) * COUNT_USERS_ON_PAGE}`
@@ -85,6 +105,7 @@ export const useUserStoreBase = create<UserState & UserActions>((set, get) => ({
       set({
         isLoading: false,
         users: data.users,
+        filteredUsers: data.users,
         usersError: '',
         error: ''
       });
@@ -158,6 +179,27 @@ export const useUserStoreBase = create<UserState & UserActions>((set, get) => ({
     }, []);
 
     set({ selectedUsersIds:  selectedIds });
+  },
+  getSearchUsers: async (searchText: string) => {
+    try {
+      const response = await api.get(`users/search?q=${searchText}`);
+
+      set({ users: response.data.users });
+
+      usePaginationStoreBase.getState().reset();
+
+      if (searchText !== '') {
+        set({ isSearch: true });
+        await usePaginationStoreBase.getState().setCountPages(response.data.users.length);
+      } else {
+        set({ isSearch: false });
+        await usePaginationStoreBase.getState().setCountPages();
+      }
+
+      await get().getSliceUsers();
+    } catch(e) {
+      set({ error: 'Failed to search users' });
+    }
   }
 }));
 

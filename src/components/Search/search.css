@@ -1,0 +1,20 @@
+.search {
+  display: flex;
+  margin-bottom: 50px;
+}
+
+.search__field {
+  display: inline-block;
+  height: 25px;
+  width: 200px;
+  margin-right: 5px;
+  border-radius: 5px;
+  border: 1px solid grey;
+  letter-spacing: .5px;
+}
+
+.search__button {
+  display: inline-block;
+  padding: 0 5px;
+  letter-spacing: .5px;
+}
