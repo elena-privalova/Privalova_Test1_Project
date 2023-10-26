@@ -59,8 +59,9 @@ export const usePaginationStoreBase = create<PaginationState & PaginationActions
       }
 
       const newCount = Math.ceil(countNewPages / COUNT_USERS_ON_PAGE);
+      const pagesCount = get().countPages;
 
-      if (isSearch && get().countPages === 0) {
+      if (isSearch && pagesCount === 0) {
         set({
           countPages: newCount,
           finalPage: newCount
@@ -68,8 +69,8 @@ export const usePaginationStoreBase = create<PaginationState & PaginationActions
         return;
       }
 
-      if (Math.abs(get().countPages - get().finalPage) < 1) {
-        set({ countPages: get().countPages + newCount });
+      if (Math.abs(pagesCount - get().finalPage) < 1) {
+        set({ countPages: pagesCount + newCount });
       }
 
     } catch(e) {

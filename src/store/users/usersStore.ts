@@ -186,14 +186,17 @@ export const useUserStoreBase = create<UserState & UserActions>((set, get) => ({
 
       set({ users: response.data.users });
 
-      usePaginationStoreBase.getState().reset();
+      const paginationState = usePaginationStoreBase.getState();
+
+      paginationState.reset();
 
       if (searchText !== '') {
         set({ isSearch: true });
-        await usePaginationStoreBase.getState().setCountPages(response.data.users.length);
+        console.log(response.data.users);
+        await paginationState.setCountPages(response.data.users.length);
       } else {
         set({ isSearch: false });
-        await usePaginationStoreBase.getState().setCountPages();
+        await paginationState.setCountPages();
       }
 
       await get().getSliceUsers();

@@ -6,6 +6,8 @@ export const getSlicePagesArray = (pagesArray: number[],
   activePage: number,
   finalPage: number,
   countPages: number): number[] => {
+  if (countPages < 3) return pagesArray;
+
   const startInterval: number[] = [activePage - START_PAGE_NUMBER, activePage + PAGES_INTERVAL];
   const interval: number[] = activePage === finalPage ||
     activePage === countPages ?
