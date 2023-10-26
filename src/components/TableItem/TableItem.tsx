@@ -92,9 +92,10 @@ export const TableItem = memo(({
     }
 
     setCurrentUser(id);
+    setIsSelectByCmd(true);
+
     if (event.metaKey) {
       if (!isStartSelect) setIsStartSelect(true);
-      setIsSelectByCmd(true);
     }
 
     if (isSelectedUser) setSelectedUsersIds([id]);
@@ -168,8 +169,10 @@ export const TableItem = memo(({
 
     if (userId != undefined) {
       if (id === Number(userId)) {
-        if (!isStartSelect) setSelectedUsersIds([id]);
-        setCurrentUser(id);
+        if (!isStartSelect) {
+          setSelectedUsersIds([id]);
+          setCurrentUser(id);
+        }
         setIsSelect(true);
       } else {
         setIsSelect(false);

@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import api from '../adapter';
 import createSelectors from '../selectors';
 import { COUNT_USERS_ON_PAGE } from '../../constants';
+import { useUserStoreBase } from '..';
 
 export type PaginationState = {
   activePage: number,
@@ -18,15 +19,20 @@ type PaginationActions = {
   setFinalPage: (numberPage: number) =>  void,
   setEndPage: (numberPage: number) => void,
   setCountPages: (countNewPages?: number) => Promise<void>,
+  reset: () => void
 };
 
-export const usePaginationStoreBase = create<PaginationState & PaginationActions>()((set, get) => ({
+const initialPaginationState = {
   activePage: 1,
-  finalPage: 3,
+  finalPage: 1,
   endPage: 0,
   countPages: 0,
   pagesArray: [],
-  error: '',
+  error: ''
+};
+
+export const usePaginationStoreBase = create<PaginationState & PaginationActions>()((set, get) => ({
+  ...initialPaginationState,
   setActivePage: (numberPage: number) => {
     set({ activePage: numberPage });
   },
@@ -37,20 +43,42 @@ export const usePaginationStoreBase = create<PaginationState & PaginationActions
     set({ endPage: numberPage });
   },
   setCountPages: async (countNewPages?: number) => {
+    const isSearch = useUserStoreBase.getState().isSearch;
+
     try {
       if (countNewPages == undefined) {
         const { data } = await api.get('users');
 
-        set({ countPages: data.users.length / COUNT_USERS_ON_PAGE });
+        const initialCount = Math.ceil(data.users.length / COUNT_USERS_ON_PAGE);
+
+        set({
+          countPages: initialCount,
+          finalPage: initialCount
+        });
         return;
       }
 
-      if (Math.abs(get().countPages - get().finalPage) < 1) {
-        set({ countPages: get().countPages + countNewPages / COUNT_USERS_ON_PAGE });
+      const newCount = Math.ceil(countNewPages / COUNT_USERS_ON_PAGE);
+      const pagesCount = get().countPages;
+
+      if (isSearch && pagesCount === 0) {
+        set({
+          countPages: newCount,
+          finalPage: newCount
+        });
+        return;
       }
+
+      if (Math.abs(pagesCount - get().finalPage) < 1) {
+        set({ countPages: pagesCount + newCount });
+      }
+
     } catch(e) {
       set({ error: 'Failed to get users' });
     }
+  },
+  reset: () => {
+    set(initialPaginationState);
   }
 }));
 

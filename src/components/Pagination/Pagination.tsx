@@ -2,7 +2,11 @@ import { MouseEvent, useEffect } from 'react';
 import classNames from 'classnames';
 
 import { usePaginatonStore, useUserStore } from '../../store';
-import { PAGES_INTERVAL, getSlicePagesArray } from '../../utils/getSlicePagesArray';
+import {
+  MAX_COUNT_PAGES,
+  PAGES_INTERVAL,
+  getSlicePagesArray
+} from '../../utils/getSlicePagesArray';
 
 import './pagination.css';
 
@@ -33,7 +37,7 @@ export const Pagination = () => {
 
   const slicePagesArray = getSlicePagesArray(pagesArray, activePage, finalPage, countPages);
 
-  const isHasPreviousButton = activePage > PAGES_INTERVAL;
+  const isHasPreviousButton = activePage > PAGES_INTERVAL && countPages > MAX_COUNT_PAGES;
   const isHasNextButton = activePage > PAGES_INTERVAL &&
     isHasMoreUsers && (countPages - activePage) > 1;
 
